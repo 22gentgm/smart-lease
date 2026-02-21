@@ -13,6 +13,7 @@ import {
   X,
 } from "lucide-react";
 import { APARTMENTS } from "@/data/apartments";
+import FavoriteButton from "@/components/FavoriteButton";
 
 type SortOption = "closest" | "price" | "rating" | "az";
 
@@ -340,6 +341,10 @@ export default function ExplorePage() {
                     <div className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-xs font-semibold text-ink shadow-sm backdrop-blur-sm">
                       <MapPin size={12} className="text-ut-orange" />
                       {apartment.distanceMiles} mi
+                    </div>
+                    {/* Favorite */}
+                    <div className="absolute right-3 top-3">
+                      <FavoriteButton apartmentIndex={index} size={18} className="shadow-md" />
                     </div>
                     {/* Special badge */}
                     {apartment.special && (

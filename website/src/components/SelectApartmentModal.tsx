@@ -139,7 +139,7 @@ export default function SelectApartmentModal({
               ${price.toLocaleString()}/mo
             </p>
             <p className="mt-4 text-sm text-smokey-gray leading-relaxed max-w-xs mx-auto">
-              Thanks for your selection! We&apos;ll follow up within{" "}
+              Your application request has been received! We&apos;ll follow up within{" "}
               <strong>24–48 hours</strong> with next steps.
             </p>
             <button
@@ -156,7 +156,7 @@ export default function SelectApartmentModal({
                 className="text-2xl font-bold text-ink"
                 style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
               >
-                Select This Apartment
+                Request Application
               </h2>
               <p className="mt-1 text-sm text-ut-orange font-semibold">{apartmentName}</p>
               <p className="mt-0.5 text-sm text-smokey-gray">
@@ -230,7 +230,7 @@ export default function SelectApartmentModal({
                   Submitting...
                 </>
               ) : (
-                "Confirm Selection"
+                "Submit Request"
               )}
             </button>
 

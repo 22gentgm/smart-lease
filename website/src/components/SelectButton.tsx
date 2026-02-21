@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Heart } from "lucide-react";
+import { FileText } from "lucide-react";
 import SelectApartmentModal from "./SelectApartmentModal";
 
 interface Props {
@@ -33,8 +33,8 @@ export default function SelectButton({
             : "border border-ut-orange/30 px-4 py-2.5 text-ut-orange hover:bg-ut-orange/10"
         }`}
       >
-        <Heart size={16} />
-        {variant === "primary" ? "Select This Apartment" : "Select"}
+        <FileText size={16} />
+        {variant === "primary" ? "Request Application" : "Request Application"}
       </button>
 
       {open && (

@@ -1,10 +1,10 @@
 import Link from "next/link";
-import Image from "next/image";
 import { APARTMENTS } from "@/data/apartments";
 import SelectButton from "@/components/SelectButton";
+import ImageCarousel from "@/components/ImageCarousel";
+import FavoriteButton from "@/components/FavoriteButton";
 import {
   ArrowLeft,
-  ExternalLink,
   Star,
   MapPin,
   Car,
@@ -150,17 +150,11 @@ export default async function ApartmentDetailPage({
         </Link>
       </div>
 
-      {/* Hero Image */}
-      <div className="mx-auto mt-4 max-w-5xl px-4 sm:px-6 lg:px-8">
-        <div className="relative aspect-[21/9] w-full overflow-hidden rounded-2xl">
-          <Image
-            src={apartment.images[0]}
-            alt={apartment.name}
-            fill
-            className="object-cover"
-            sizes="(max-width: 1024px) 100vw, 1024px"
-            priority
-          />
+      {/* Image Carousel */}
+      <div className="mx-auto mt-4 max-w-5xl px-4 sm:px-6 lg:px-8 relative">
+        <ImageCarousel images={apartment.images} alt={apartment.name} />
+        <div className="absolute top-3 right-7 z-10 sm:right-9">
+          <FavoriteButton apartmentIndex={index} size={22} className="shadow-md" />
         </div>
       </div>
 
@@ -337,16 +331,6 @@ export default async function ApartmentDetailPage({
                   distance={apartment.distanceMiles}
                 />
               </div>
-
-              <a
-                href={apartment.website}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-ink/10 px-4 py-3 text-sm font-medium text-smokey-gray transition-colors hover:border-ut-orange hover:text-ut-orange"
-              >
-                <ExternalLink size={16} />
-                Visit Website
-              </a>
 
               <Link
                 href="/results"

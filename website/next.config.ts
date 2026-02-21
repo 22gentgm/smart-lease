@@ -35,6 +35,7 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "commonsatknoxville.com" },
       { protocol: "https", hostname: "www.tennstudentliving.com" },
       { protocol: "https", hostname: "offcampushousing.utk.edu" },
+      { protocol: "https", hostname: "images.unsplash.com" },
     ],
   },
 };
