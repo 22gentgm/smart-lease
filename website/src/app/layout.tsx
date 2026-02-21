@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Space_Grotesk } from "next/font/google";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/next";
 import Navigation from "@/components/Navigation";
 
 const playfair = Playfair_Display({
@@ -31,6 +32,7 @@ export default function RootLayout({
       <body className={`${playfair.variable} ${spaceGrotesk.variable}`}>
         <Navigation />
         {children}
+        <Analytics />
       </body>
     </html>
   );
