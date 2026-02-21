@@ -1,46 +1,26 @@
 @import "tailwindcss";
 
 :root {
-  --color-cream: #FAF8F5;
-  --color-cream-dark: #F5F3F0;
-  --color-ink: #1A1A1A;
-  --color-ut-orange: #FF8200;
-  --color-ut-orange-light: #FF9E33;
-  --color-smokey-gray: #4B4B4B;
-  --color-smokey-light: #6B6B6B;
-  --color-success: #00b464;
+  --background: #ffffff;
+  --foreground: #171717;
 }
 
 @theme inline {
-  --color-cream: var(--color-cream);
-  --color-cream-dark: var(--color-cream-dark);
-  --color-ink: var(--color-ink);
-  --color-ut-orange: var(--color-ut-orange);
-  --color-ut-orange-light: var(--color-ut-orange-light);
-  --color-smokey-gray: var(--color-smokey-gray);
-  --color-smokey-light: var(--color-smokey-light);
-  --color-success: var(--color-success);
-  --font-serif: var(--font-playfair);
-  --font-sans: var(--font-space-grotesk);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
 }
 
-@keyframes fade-in {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@utility animate-fade-in {
-  animation: fade-in 0.25s ease-out;
-}
-
-html {
-  scroll-behavior: smooth;
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
 }
 
 body {
-  background-color: var(--color-cream);
-  color: var(--color-ink);
-  font-family: var(--font-sans), system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
 }

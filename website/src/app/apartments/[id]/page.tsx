@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { APARTMENTS } from "@/data/apartments";
+import SelectButton from "@/components/SelectButton";
 import {
   ArrowLeft,
   ExternalLink,
@@ -329,11 +330,19 @@ export default async function ApartmentDetailPage({
                 </span>
               </p>
 
+              <div className="mt-5">
+                <SelectButton
+                  apartmentName={apartment.name}
+                  price={Math.min(...apartment.bedTypes.filter((b) => !b.soldOut).map((b) => b.price))}
+                  distance={apartment.distanceMiles}
+                />
+              </div>
+
               <a
                 href={apartment.website}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-ut-orange px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-ut-orange-light"
+                className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-ink/10 px-4 py-3 text-sm font-medium text-smokey-gray transition-colors hover:border-ut-orange hover:text-ut-orange"
               >
                 <ExternalLink size={16} />
                 Visit Website

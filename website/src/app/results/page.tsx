@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Star, MapPin, ArrowLeft, ExternalLink, Tag, Sparkles } from "lucide-react";
 import { computeMatches } from "@/lib/matching";
+import SelectButton from "@/components/SelectButton";
 
 function StarRating({ rating, size = 14 }: { rating: number; size?: number }) {
   return (
@@ -140,22 +141,32 @@ function ResultsContent() {
                 )}
 
                 {/* Actions */}
-                <div className="mt-auto flex items-center gap-3 pt-5">
-                  <Link
-                    href={`/apartments/${index}`}
-                    className="flex-1 rounded-xl bg-ut-orange px-4 py-2.5 text-center text-sm font-semibold text-white transition-colors hover:bg-ut-orange-light"
-                  >
-                    View Details
-                  </Link>
-                  <a
-                    href={apartment.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-1 rounded-xl border border-ink/10 px-3 py-2.5 text-sm font-medium text-smokey-gray transition-colors hover:border-ut-orange hover:text-ut-orange"
-                  >
-                    <ExternalLink size={14} />
-                    <span className="hidden sm:inline">Website</span>
-                  </a>
+                <div className="mt-auto flex flex-col gap-2 pt-5">
+                  <div className="flex items-center gap-3">
+                    <Link
+                      href={`/apartments/${index}`}
+                      className="flex-1 rounded-xl bg-ut-orange px-4 py-2.5 text-center text-sm font-semibold text-white transition-colors hover:bg-ut-orange-light"
+                    >
+                      View Details
+                    </Link>
+                    <a
+                      href={apartment.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1 rounded-xl border border-ink/10 px-3 py-2.5 text-sm font-medium text-smokey-gray transition-colors hover:border-ut-orange hover:text-ut-orange"
+                    >
+                      <ExternalLink size={14} />
+                      <span className="hidden sm:inline">Website</span>
+                    </a>
+                  </div>
+                  <SelectButton
+                    apartmentName={apartment.name}
+                    price={matchedBedType.price}
+                    matchScore={score}
+                    bedrooms={matchedBedType.beds}
+                    distance={apartment.distanceMiles}
+                    variant="outline"
+                  />
                 </div>
               </div>
             </div>
