@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Lease — Prototypes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Space Grotesk', sans-serif; background: #1a1a1a; color: #fff; min-height: 100vh; padding: 48px 24px; }
+    h1 { font-size: 32px; margin-bottom: 12px; }
+    p { color: rgba(255,255,255,0.6); margin-bottom: 48px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; max-width: 1200px; }
+    .grid a { display: block; background: #27272a; border: 1px solid #3f3f46; border-radius: 16px; padding: 32px; text-decoration: none; color: inherit; transition: all 0.2s; }
+    .grid a:hover { border-color: #FF8200; background: #2a2a2e; transform: translateY(-2px); }
+    .quick-links a { display: inline; padding: 0; background: none; border: none; color: #FF8200; text-decoration: none; }
+    .quick-links a:hover { text-decoration: underline; }
+    a h2 { font-size: 20px; margin-bottom: 8px; }
+    a .desc { font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.5; margin-bottom: 16px; }
+    a .badge { display: inline-block; font-size: 11px; padding: 4px 10px; border-radius: 20px; background: rgba(255,130,0,0.2); color: #FF8200; margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <h1>Smart Lease Prototypes</h1>
+  <p>Choose a prototype to explore. All include: Home (Survey/Filter), Sublease Forum, Roommate Find (Tinder-style), Map, 24/7 Lease Assistance, and Verified Reviews. Each pulls from <strong>21 Knoxville-area student apartments</strong> near UT.</p>
+  
+  <div class="quick-links" style="margin-bottom: 32px; padding: 20px 24px; background: #27272a; border-radius: 12px; border: 1px solid #3f3f46;">
+    <h3 style="font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.05em;">Quick links</h3>
+    <ol style="list-style: decimal; padding-left: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px 24px;">
+      <li><a href="v1-editorial-magazine.html">UT Knoxville Editorial</a></li>
+      <li><a href="v2-neon-cyberpunk.html">Neon Cyberpunk</a></li>
+      <li><a href="v3-playful-genz.html">Playful Gen Z</a></li>
+      <li><a href="v4-3d-dashboard.html">3D Dashboard</a></li>
+    </ol>
+  </div>
+  
+  <div class="grid">
+    <a href="v1-editorial-magazine.html">
+      <h2>1. UT Knoxville Editorial</h2>
+      <span class="desc">Tennessee Orange & Smokey Gray. Magazine-style layout with survey-driven results.</span>
+      <span class="badge">Survey results reflect your answers</span>
+    </a>
+    <a href="v2-neon-cyberpunk.html">
+      <h2>2. Neon Cyberpunk</h2>
+      <span class="desc">Terminal aesthetic. Dark mode, cyan/magenta accents, glitch effects.</span>
+      <span class="badge">Survey results reflect your answers</span>
+    </a>
+    <a href="v3-playful-genz.html">
+      <h2>3. Playful Gen Z</h2>
+      <span class="desc">Chat-based onboarding, swipeable cards. Coral, lavender, playful vibes.</span>
+      <span class="badge">Survey results reflect your answers</span>
+    </a>
+    <a href="v4-3d-dashboard.html">
+      <h2>4. 3D Dashboard</h2>
+      <span class="desc">Dark immersive UI. Charts, filters, tilt cards. Teal accents.</span>
+      <span class="badge">Survey results reflect your answers</span>
+    </a>
+  </div>
+</body>
+</html>

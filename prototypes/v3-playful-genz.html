@@ -1,0 +1,1467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>smart lease - swipe right on your next apartment</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        coral: '#FF6B6B',
+        'coral-light': '#FF8A8A',
+        'coral-dark': '#E85555',
+        lavender: '#C4B5FD',
+        'lavender-light': '#DDD6FE',
+        'lavender-dark': '#A78BFA',
+        mint: '#6EE7B7',
+        'mint-light': '#A7F3D0',
+        peach: '#FBBF24',
+        'peach-light': '#FDE68A',
+        cream: '#FAFAF9',
+        'warm-gray': '#78716C',
+        'soft-gray': '#F5F5F4',
+      },
+      fontFamily: {
+        outfit: ['Outfit', 'sans-serif'],
+        dm: ['DM Sans', 'sans-serif'],
+      },
+      borderRadius: {
+        'bubble': '24px',
+        'pill': '50px',
+        'card': '28px',
+      },
+      keyframes: {
+        'bounce-in': {
+          '0%': { transform: 'scale(0)', opacity: '0' },
+          '50%': { transform: 'scale(1.08)' },
+          '70%': { transform: 'scale(0.96)' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+        'slide-up': {
+          '0%': { transform: 'translateY(30px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+        'fade-in': {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        'typing-dot': {
+          '0%, 60%, 100%': { transform: 'translateY(0)' },
+          '30%': { transform: 'translateY(-8px)' },
+        },
+        'float': {
+          '0%, 100%': { transform: 'translateY(0) rotate(0deg)' },
+          '33%': { transform: 'translateY(-12px) rotate(3deg)' },
+          '66%': { transform: 'translateY(6px) rotate(-2deg)' },
+        },
+        'float-slow': {
+          '0%, 100%': { transform: 'translateY(0) scale(1)' },
+          '50%': { transform: 'translateY(-20px) scale(1.05)' },
+        },
+        'jelly': {
+          '0%': { transform: 'scale(1)' },
+          '30%': { transform: 'scale(0.92, 1.08)' },
+          '50%': { transform: 'scale(1.05, 0.95)' },
+          '70%': { transform: 'scale(0.98, 1.02)' },
+          '100%': { transform: 'scale(1)' },
+        },
+        'pulse-soft': {
+          '0%, 100%': { transform: 'scale(1)', opacity: '1' },
+          '50%': { transform: 'scale(1.05)', opacity: '0.9' },
+        },
+        'swipe-left': {
+          '0%': { transform: 'translateX(0) rotate(0deg)', opacity: '1' },
+          '100%': { transform: 'translateX(-120%) rotate(-15deg)', opacity: '0' },
+        },
+        'swipe-right': {
+          '0%': { transform: 'translateX(0) rotate(0deg)', opacity: '1' },
+          '100%': { transform: 'translateX(120%) rotate(15deg)', opacity: '0' },
+        },
+        'card-enter': {
+          '0%': { transform: 'scale(0.9) translateY(30px)', opacity: '0' },
+          '100%': { transform: 'scale(1) translateY(0)', opacity: '1' },
+        },
+        'spin-house': {
+          '0%': { transform: 'rotate(0deg)' },
+          '100%': { transform: 'rotate(360deg)' },
+        },
+        'wiggle': {
+          '0%, 100%': { transform: 'rotate(0deg)' },
+          '25%': { transform: 'rotate(-5deg)' },
+          '75%': { transform: 'rotate(5deg)' },
+        },
+      },
+      animation: {
+        'bounce-in': 'bounce-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
+        'slide-up': 'slide-up 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
+        'fade-in': 'fade-in 0.3s ease forwards',
+        'float': 'float 6s ease-in-out infinite',
+        'float-slow': 'float-slow 8s ease-in-out infinite',
+        'jelly': 'jelly 0.4s ease',
+        'pulse-soft': 'pulse-soft 2s ease-in-out infinite',
+        'swipe-left': 'swipe-left 0.4s ease forwards',
+        'swipe-right': 'swipe-right 0.4s ease forwards',
+        'card-enter': 'card-enter 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
+        'spin-house': 'spin-house 1.5s linear infinite',
+        'wiggle': 'wiggle 0.5s ease-in-out',
+      },
+    }
+  }
+}
+</script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: #E8E8E8; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+  
+  .phone-frame {
+    width: 430px; max-width: 100vw; height: 932px; max-height: 100vh;
+    background: #FAFAF9; position: relative; overflow: hidden;
+    border-radius: 40px; box-shadow: 0 25px 80px rgba(0,0,0,0.15), 0 0 0 2px rgba(0,0,0,0.05);
+  }
+  @media (max-width: 430px) { .phone-frame { border-radius: 0; height: 100vh; box-shadow: none; } body { background: #FAFAF9; } }
+
+  .screen { position: absolute; inset: 0; transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+  .screen.hidden { opacity: 0; pointer-events: none; transform: scale(0.95); }
+  .screen.active { opacity: 1; pointer-events: auto; transform: scale(1); }
+
+  /* Scrollbar styling */
+  .chat-scroll::-webkit-scrollbar { width: 4px; }
+  .chat-scroll::-webkit-scrollbar-track { background: transparent; }
+  .chat-scroll::-webkit-scrollbar-thumb { background: #DDD6FE; border-radius: 10px; }
+
+  /* Typing indicator */
+  .typing-dot { width: 8px; height: 8px; background: #A8A29E; border-radius: 50%; display: inline-block; }
+  .typing-dot:nth-child(1) { animation: typing-dot 1.2s infinite 0s; }
+  .typing-dot:nth-child(2) { animation: typing-dot 1.2s infinite 0.2s; }
+  .typing-dot:nth-child(3) { animation: typing-dot 1.2s infinite 0.4s; }
+
+  /* Chat bubble styles */
+  .bot-bubble {
+    background: white; color: #44403C; border-radius: 24px 24px 24px 8px;
+    padding: 14px 18px; max-width: 80%; font-size: 15px; line-height: 1.5;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    animation: bounce-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  }
+  .user-bubble {
+    background: #FF6B6B; color: white; border-radius: 24px 24px 8px 24px;
+    padding: 14px 18px; max-width: 75%; font-size: 15px; line-height: 1.5;
+    margin-left: auto;
+    animation: bounce-in 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  }
+
+  /* Quick reply buttons */
+  .quick-reply {
+    background: white; border: 2px solid #E7E5E4; color: #44403C;
+    border-radius: 50px; padding: 10px 20px; font-size: 14px; font-weight: 500;
+    cursor: pointer; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    font-family: 'DM Sans', sans-serif; white-space: nowrap;
+  }
+  .quick-reply:hover { border-color: #FF6B6B; background: #FFF5F5; transform: scale(1.05); }
+  .quick-reply:active { transform: scale(0.92); }
+  .quick-reply.selected { background: #FF6B6B; color: white; border-color: #FF6B6B; }
+  .quick-reply.multi-selected { background: #C4B5FD; color: white; border-color: #C4B5FD; }
+
+  /* Slider custom */
+  input[type="range"] { -webkit-appearance: none; width: 100%; height: 8px; border-radius: 10px; background: #E7E5E4; outline: none; }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 32px; height: 32px; border-radius: 50%;
+    background: #FF6B6B; cursor: pointer; box-shadow: 0 4px 12px rgba(255,107,107,0.4);
+    transition: transform 0.2s; 
+  }
+  input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+
+  /* Swipeable card */
+  .apt-card {
+    position: absolute; width: 100%; height: 100%; border-radius: 28px; overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+    cursor: grab; user-select: none;
+  }
+  .apt-card:active { cursor: grabbing; }
+  .apt-card img { width: 100%; height: 60%; object-fit: cover; }
+
+  /* Nav pill */
+  .nav-pill {
+    background: white; border-radius: 50px; padding: 8px 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.05);
+  }
+  .nav-item {
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    padding: 8px 14px; border-radius: 24px; cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+  }
+  .nav-item.active { background: #FF6B6B; color: white; transform: scale(1.08); }
+  .nav-item:not(.active) { color: #A8A29E; }
+  .nav-item:not(.active):hover { color: #78716C; transform: scale(1.05); }
+  .nav-item:active { transform: scale(0.9); }
+
+  /* Blob shapes */
+  .blob {
+    position: absolute; border-radius: 50%; filter: blur(40px); opacity: 0.3;
+  }
+
+  /* Heart animation */
+  .heart-pop {
+    animation: jelly 0.4s ease;
+  }
+  .heart-pop.liked { color: #FF6B6B; }
+
+  /* Priority number badge */
+  .priority-badge {
+    position: absolute; top: -6px; right: -6px; width: 22px; height: 22px;
+    background: #FF6B6B; color: white; border-radius: 50%; font-size: 11px;
+    font-weight: 700; display: flex; align-items: center; justify-content: center;
+    animation: bounce-in 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  }
+
+  /* Loading spinner house */
+  .house-spinner { animation: spin-house 1.5s linear infinite; display: inline-block; font-size: 36px; }
+
+  /* Survey quiz tiles (v3) */
+  .quiz-tile-v3 {
+    background: white; border: 2px solid #E7E5E4; border-radius: 16px;
+    padding: 20px 16px; cursor: pointer; transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .quiz-tile-v3:hover { border-color: #FF6B6B; background: #FFF5F5; }
+  .quiz-tile-v3.selected { background: #FF6B6B; border-color: #FF6B6B; color: white; }
+  .quiz-tile-v3.selected p { color: white !important; }
+  .quiz-tile-v3.selected .text-warm-gray { color: rgba(255,255,255,0.9) !important; }
+  .amenity-tile-v3 {
+    background: white; border: 2px solid #E7E5E4; border-radius: 12px;
+    padding: 14px 16px; font-size: 14px; font-weight: 500; cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .amenity-tile-v3:hover { border-color: #C4B5FD; background: #F5F3FF; }
+  .amenity-tile-v3.selected { background: #C4B5FD; border-color: #C4B5FD; color: white; }
+  .distance-tile-v3 {
+    padding: 20px 12px; text-align: center; cursor: pointer;
+    font-size: 14px; font-weight: 500; font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s ease;
+  }
+  .distance-tile-v3:hover { background: #FFF5F5; }
+  .distance-tile-v3.selected { background: #FF6B6B; color: white; }
+  .priority-tile-v3 {
+    background: white; border: 2px solid #E7E5E4; border-radius: 12px;
+    padding: 16px 20px; font-weight: 500; font-family: 'DM Sans', sans-serif;
+    cursor: pointer; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .priority-tile-v3:hover { border-color: #FF6B6B; background: #FFF5F5; }
+  .priority-tile-v3.ranked { background: #FF6B6B; border-color: #FF6B6B; color: white; }
+  .priority-tile-v3 .priority-num-v3 { font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 18px; }
+</style>
+</head>
+<body>
+
+<div class="phone-frame" id="app">
+
+  <!-- ==================== SCREEN 1: WELCOME ==================== -->
+  <div id="screen-welcome" class="screen active">
+    <!-- Background gradient -->
+    <div class="absolute inset-0" style="background: linear-gradient(160deg, #FEF3C7 0%, #FAFAF9 30%, #EDE9FE 70%, #FAFAF9 100%);"></div>
+    
+    <!-- Floating blobs -->
+    <div class="blob animate-float" style="width:180px;height:180px;background:#FF6B6B;top:-40px;right:-40px;opacity:0.15;"></div>
+    <div class="blob animate-float-slow" style="width:140px;height:140px;background:#C4B5FD;bottom:120px;left:-30px;opacity:0.2;animation-delay:1s;"></div>
+    <div class="blob animate-float" style="width:100px;height:100px;background:#FBBF24;top:200px;right:-20px;opacity:0.12;animation-delay:2s;"></div>
+    <div class="blob animate-float-slow" style="width:120px;height:120px;background:#6EE7B7;bottom:300px;right:60px;opacity:0.1;animation-delay:3s;"></div>
+    
+    <!-- Floating circles (decorative) -->
+    <div class="absolute animate-float" style="top:15%;left:12%;animation-delay:0.5s;">
+      <div class="w-4 h-4 rounded-full bg-coral opacity-30"></div>
+    </div>
+    <div class="absolute animate-float-slow" style="top:25%;right:15%;animation-delay:1.5s;">
+      <div class="w-3 h-3 rounded-full bg-lavender opacity-40"></div>
+    </div>
+    <div class="absolute animate-float" style="bottom:35%;left:20%;animation-delay:2.5s;">
+      <div class="w-5 h-5 rounded-full bg-peach opacity-25"></div>
+    </div>
+    <div class="absolute animate-float-slow" style="top:45%;right:10%;animation-delay:0.8s;">
+      <div class="w-3 h-3 rounded-full bg-mint opacity-30"></div>
+    </div>
+
+    <div class="relative z-10 flex flex-col items-center justify-center h-full px-8">
+      <!-- House illustration (SVG) -->
+      <div class="mb-8 animate-float" style="animation-duration:4s;">
+        <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+          <!-- House body -->
+          <rect x="25" y="55" width="70" height="50" rx="12" fill="#FF6B6B" opacity="0.9"/>
+          <!-- Roof -->
+          <path d="M15 62 L60 22 L105 62" stroke="#FF6B6B" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          <!-- Door -->
+          <rect x="48" y="72" width="24" height="33" rx="12" fill="white" opacity="0.9"/>
+          <!-- Door knob -->
+          <circle cx="65" cy="90" r="3" fill="#FF6B6B" opacity="0.6"/>
+          <!-- Window left -->
+          <rect x="32" y="65" width="14" height="14" rx="5" fill="white" opacity="0.8"/>
+          <!-- Window right -->
+          <rect x="74" y="65" width="14" height="14" rx="5" fill="white" opacity="0.8"/>
+          <!-- Chimney -->
+          <rect x="78" y="30" width="12" height="25" rx="4" fill="#FF8A8A" opacity="0.8"/>
+          <!-- Heart smoke -->
+          <text x="80" y="26" font-size="14" opacity="0.5">💕</text>
+          <!-- Eyes on house -->
+          <circle cx="39" cy="71" r="2.5" fill="#44403C" opacity="0.7"/>
+          <circle cx="81" cy="71" r="2.5" fill="#44403C" opacity="0.7"/>
+          <!-- Smile -->
+          <path d="M55 88 Q60 94 65 88" stroke="#FF6B6B" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.5"/>
+        </svg>
+      </div>
+
+      <!-- Logo -->
+      <h1 class="font-outfit text-5xl font-bold text-stone-800 tracking-tight mb-3" style="letter-spacing:-1px;">
+        smart lease
+      </h1>
+      
+      <!-- Tagline -->
+      <p class="font-dm text-lg text-warm-gray mb-2 text-center">swipe right on your next apartment ✨</p>
+      <p class="font-dm text-sm text-stone-400 mb-12 text-center">apartment matching for ut knoxville students</p>
+
+      <!-- CTA Button -->
+      <button onclick="goToScreen('screen-quiz'); initQuizV3();" 
+        class="bg-coral hover:bg-coral-dark text-white font-outfit font-semibold text-lg px-10 py-4 rounded-pill shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95"
+        style="box-shadow: 0 8px 30px rgba(255,107,107,0.35);">
+        let's find your place 🏠
+      </button>
+
+      <!-- Small trust badges -->
+      <div class="flex items-center gap-4 mt-8 text-stone-400 text-xs font-dm">
+        <span>🎓 2,400+ students</span>
+        <span class="w-1 h-1 bg-stone-300 rounded-full"></span>
+        <span>⭐ 4.9 rating</span>
+        <span class="w-1 h-1 bg-stone-300 rounded-full"></span>
+        <span>🔒 free</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== SCREEN 2: SURVEY QUIZ ==================== -->
+  <div id="screen-quiz" class="screen hidden">
+    <div class="flex flex-col h-full bg-cream overflow-y-auto" style="background: linear-gradient(160deg, #FEF3C7 0%, #FAFAF9 20%, #EDE9FE 60%, #FAFAF9 100%);">
+      <!-- Quiz header -->
+      <div class="flex items-center gap-3 px-5 py-4" style="padding-top: max(env(safe-area-inset-top), 16px);">
+        <button onclick="goToScreen('screen-welcome')" class="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm hover:shadow-md transition-all active:scale-90">
+          <i data-lucide="arrow-left" class="w-5 h-5 text-stone-600"></i>
+        </button>
+        <div class="flex-1 text-center">
+          <p class="font-outfit font-bold text-stone-800">find your place</p>
+          <p id="quiz-progress-label" class="text-xs font-dm text-warm-gray">01 / 05</p>
+        </div>
+        <div class="w-10"></div>
+      </div>
+
+      <!-- Q1: BEDROOMS -->
+      <div class="quiz-step active px-6 pb-12" id="quiz-v3-q1">
+        <h2 class="font-outfit font-bold text-2xl text-stone-800 mb-2">How much space do you need?</h2>
+        <p class="font-dm text-sm text-warm-gray mb-6">Pick your vibe</p>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="quiz-tile-v3" onclick="selectBedroomV3(this, 'studio')" data-value="studio">
+            <p class="font-outfit font-semibold text-stone-800">Studio</p>
+            <p class="font-dm text-xs text-warm-gray mt-0.5">Open concept ✨</p>
+          </div>
+          <div class="quiz-tile-v3" onclick="selectBedroomV3(this, '1 bed')" data-value="1 bed">
+            <p class="font-outfit font-semibold text-stone-800">1 Bed</p>
+            <p class="font-dm text-xs text-warm-gray mt-0.5">Your own room</p>
+          </div>
+          <div class="quiz-tile-v3" onclick="selectBedroomV3(this, '2 bed')" data-value="2 bed">
+            <p class="font-outfit font-semibold text-stone-800">2 Bed</p>
+            <p class="font-dm text-xs text-warm-gray mt-0.5">Share the space</p>
+          </div>
+          <div class="quiz-tile-v3" onclick="selectBedroomV3(this, '4+')" data-value="4+">
+            <p class="font-outfit font-semibold text-stone-800">3+ Bed</p>
+            <p class="font-dm text-xs text-warm-gray mt-0.5">Squad goals 👥</p>
+          </div>
+        </div>
+        <div class="mt-8">
+          <button id="q1-v3-next" onclick="nextQuizV3(2)" class="w-full bg-coral text-white font-outfit font-semibold py-4 rounded-pill opacity-40 pointer-events-none transition-all" disabled>Next →</button>
+        </div>
+      </div>
+
+      <!-- Q2: BUDGET -->
+      <div class="quiz-step hidden px-6 pb-12" id="quiz-v3-q2">
+        <h2 class="font-outfit font-bold text-2xl text-stone-800 mb-2">What's comfortable?</h2>
+        <p class="font-dm text-sm text-warm-gray mb-4">Monthly budget</p>
+        <div class="text-center mb-6">
+          <span class="font-outfit font-bold text-4xl text-coral" id="budget-display-v3">$1,200</span>
+          <p class="font-dm text-xs text-warm-gray mt-1">per month</p>
+        </div>
+        <input type="range" min="500" max="2500" step="50" value="1200" id="budget-slider-v3" class="w-full mb-2" oninput="updateBudgetV3(this.value)">
+        <div class="flex justify-between text-xs text-warm-gray mb-6"><span>$500</span><span>$2,500</span></div>
+        <div class="flex gap-3 mt-6">
+          <button onclick="prevQuizV3(1)" class="flex-1 py-3 rounded-pill border-2 border-stone-200 text-stone-600 font-dm font-semibold">Back</button>
+          <button onclick="nextQuizV3(3)" class="flex-1 py-3 rounded-pill bg-coral text-white font-outfit font-semibold">Next →</button>
+        </div>
+      </div>
+
+      <!-- Q3: AMENITIES -->
+      <div class="quiz-step hidden px-6 pb-12" id="quiz-v3-q3">
+        <h2 class="font-outfit font-bold text-2xl text-stone-800 mb-2">The essentials.</h2>
+        <p class="font-dm text-sm text-warm-gray mb-6">Pick all that apply</p>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="amenity-tile-v3" onclick="toggleAmenityV3(this)" data-amenity="pool">🏊 Pool</div>
+          <div class="amenity-tile-v3" onclick="toggleAmenityV3(this)" data-amenity="gym">💪 Gym</div>
+          <div class="amenity-tile-v3" onclick="toggleAmenityV3(this)" data-amenity="parking">🚗 Parking</div>
+          <div class="amenity-tile-v3" onclick="toggleAmenityV3(this)" data-amenity="study spot">📚 Study spot</div>
+          <div class="amenity-tile-v3" onclick="toggleAmenityV3(this)" data-amenity="washer/dryer">👕 W/D</div>
+          <div class="amenity-tile-v3" onclick="toggleAmenityV3(this)" data-amenity="pets ok">🐕 Pets ok</div>
+          <div class="amenity-tile-v3" onclick="toggleAmenityV3(this)" data-amenity="furnished">🛋️ Furnished</div>
+          <div class="amenity-tile-v3" onclick="toggleAmenityV3(this)" data-amenity="game room">🎮 Game room</div>
+        </div>
+        <div class="flex gap-3 mt-8">
+          <button onclick="prevQuizV3(2)" class="flex-1 py-3 rounded-pill border-2 border-stone-200 text-stone-600 font-dm font-semibold">Back</button>
+          <button onclick="nextQuizV3(4)" class="flex-1 py-3 rounded-pill bg-coral text-white font-outfit font-semibold">Next →</button>
+        </div>
+      </div>
+
+      <!-- Q4: DISTANCE -->
+      <div class="quiz-step hidden px-6 pb-12" id="quiz-v3-q4">
+        <h2 class="font-outfit font-bold text-2xl text-stone-800 mb-2">How close to campus?</h2>
+        <p class="font-dm text-sm text-warm-gray mb-6">How do you plan to get there?</p>
+        <div class="flex border border-stone-200 rounded-card overflow-hidden">
+          <div class="distance-tile-v3 flex-1" onclick="selectDistanceV3(this, 'walking distance')" data-value="walking">🚶 Walking</div>
+          <div class="distance-tile-v3 flex-1 border-l border-stone-200" onclick="selectDistanceV3(this, 'short drive')" data-value="drive">🚗 Short drive</div>
+          <div class="distance-tile-v3 flex-1 border-l border-stone-200" onclick="selectDistanceV3(this, 'wherever')" data-value="any">🤷 Wherever</div>
+        </div>
+        <div class="flex gap-3 mt-8">
+          <button onclick="prevQuizV3(3)" class="flex-1 py-3 rounded-pill border-2 border-stone-200 text-stone-600 font-dm font-semibold">Back</button>
+          <button id="q4-v3-next" onclick="nextQuizV3(5)" class="flex-1 py-3 rounded-pill bg-coral text-white font-outfit font-semibold opacity-40 pointer-events-none transition-all" disabled>Next →</button>
+        </div>
+      </div>
+
+      <!-- Q5: PRIORITY -->
+      <div class="quiz-step hidden px-6 pb-12" id="quiz-v3-q5">
+        <h2 class="font-outfit font-bold text-2xl text-stone-800 mb-2">What matters most?</h2>
+        <p class="font-dm text-sm text-warm-gray mb-6">Tap to rank 1–4</p>
+        <div id="priority-list-v3">
+          <div class="priority-tile-v3" onclick="rankPriorityV3(this)" data-label="price">💰 Price</div>
+          <div class="priority-tile-v3" onclick="rankPriorityV3(this)" data-label="location">📍 Location</div>
+          <div class="priority-tile-v3" onclick="rankPriorityV3(this)" data-label="amenities">🏊 Amenities</div>
+          <div class="priority-tile-v3" onclick="rankPriorityV3(this)" data-label="reviews">⭐ Reviews</div>
+        </div>
+        <div class="flex gap-3 mt-8">
+          <button onclick="prevQuizV3(4)" class="flex-1 py-3 rounded-pill border-2 border-stone-200 text-stone-600 font-dm font-semibold">Back</button>
+          <button id="q5-v3-finish" onclick="finishQuizV3()" class="flex-1 py-3 rounded-pill bg-coral text-white font-outfit font-semibold opacity-40 pointer-events-none transition-all" disabled>See my matches ✨</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== SCREEN 4: RESULTS (Swipeable Cards) ==================== -->
+  <div id="screen-results" class="screen hidden">
+    <div class="flex flex-col h-full bg-cream">
+      <!-- Results header -->
+      <div class="flex items-center justify-between px-5 py-4" style="padding-top: max(env(safe-area-inset-top), 16px);">
+        <button onclick="goToScreen('screen-quiz')" class="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm hover:shadow-md transition-all active:scale-90">
+          <i data-lucide="arrow-left" class="w-5 h-5 text-stone-600"></i>
+        </button>
+        <div class="text-center">
+          <p class="font-outfit font-bold text-stone-800 text-lg">your matches</p>
+          <p class="font-dm text-xs text-warm-gray">swipe to explore</p>
+        </div>
+        <button class="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm hover:shadow-md transition-all active:scale-90">
+          <i data-lucide="sliders-horizontal" class="w-5 h-5 text-stone-600"></i>
+        </button>
+      </div>
+
+      <!-- Card stack area -->
+      <div class="flex-1 px-5 pb-4 relative min-h-[340px]" id="card-stack-container">
+        <div id="card-stack" class="relative w-full h-full min-h-[340px]">
+          <!-- Cards injected by JS -->
+        </div>
+        
+        <!-- Swipe hint -->
+        <div id="swipe-hint" class="absolute bottom-8 left-0 right-0 flex justify-center">
+          <div class="bg-white/80 backdrop-blur-sm rounded-pill px-4 py-2 flex items-center gap-2 shadow-sm text-xs font-dm text-warm-gray">
+            <i data-lucide="move-horizontal" class="w-4 h-4"></i>
+            swipe or tap arrows
+          </div>
+        </div>
+      </div>
+
+      <!-- Card navigation -->
+      <div class="flex items-center justify-center gap-6 px-5 py-4">
+        <button onclick="prevCard()" id="btn-prev" class="w-14 h-14 rounded-full bg-white flex items-center justify-center shadow-md hover:shadow-lg transition-all active:scale-90 disabled:opacity-30" disabled>
+          <i data-lucide="chevron-left" class="w-6 h-6 text-stone-500"></i>
+        </button>
+        
+        <!-- Dots -->
+        <div id="card-dots" class="flex items-center gap-2">
+          <!-- Injected -->
+        </div>
+
+        <button onclick="nextCard()" id="btn-next" class="w-14 h-14 rounded-full bg-white flex items-center justify-center shadow-md hover:shadow-lg transition-all active:scale-90">
+          <i data-lucide="chevron-right" class="w-6 h-6 text-stone-500"></i>
+        </button>
+      </div>
+
+      <!-- Bottom nav -->
+      <div class="px-6 pb-4" style="padding-bottom: max(env(safe-area-inset-bottom), 16px);">
+        <div class="nav-pill flex items-center justify-between overflow-x-auto gap-1">
+          <div class="nav-item active" onclick="switchNav(this, 'home')"><i data-lucide="home" class="w-4 h-4"></i><span class="text-[9px] font-dm font-medium">home</span></div>
+          <div class="nav-item" onclick="switchNav(this, 'sublease')"><i data-lucide="calendar" class="w-4 h-4"></i><span class="text-[9px] font-dm font-medium">sublease</span></div>
+          <div class="nav-item" onclick="switchNav(this, 'roomies')"><i data-lucide="users" class="w-4 h-4"></i><span class="text-[9px] font-dm font-medium">roomies</span></div>
+          <div class="nav-item" onclick="switchNav(this, 'map')"><i data-lucide="map-pin" class="w-4 h-4"></i><span class="text-[9px] font-dm font-medium">map</span></div>
+          <div class="nav-item" onclick="switchNav(this, 'assist')"><i data-lucide="shield" class="w-4 h-4"></i><span class="text-[9px] font-dm font-medium">assist</span></div>
+          <div class="nav-item" onclick="switchNav(this, 'reviews')"><i data-lucide="message-circle" class="w-4 h-4"></i><span class="text-[9px] font-dm font-medium">reviews</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== SUBLEASE SCREEN ==================== -->
+  <div id="screen-sublease" class="screen hidden">
+    <div class="flex flex-col h-full bg-cream">
+      <div class="flex items-center gap-3 px-5 py-4" style="padding-top: max(env(safe-area-inset-top), 16px);">
+        <button onclick="goToScreen('screen-results')" class="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm"><i data-lucide="arrow-left" class="w-5 h-5 text-stone-600"></i></button>
+        <p class="font-outfit font-bold text-stone-800">Sublease Forum</p>
+      </div>
+      <div class="flex-1 overflow-y-auto px-5 pb-24">
+        <p class="font-dm text-sm text-warm-gray mb-4">Find or post subleases. Real students, real deals.</p>
+        <div class="flex gap-2 mb-4"><button class="flex-1 bg-coral text-white font-dm font-semibold py-3 rounded-pill">+ New Post</button><button class="w-12 h-12 rounded-full bg-white shadow flex items-center justify-center"><i data-lucide="search" class="w-5 h-5 text-stone-500"></i></button></div>
+        <div class="bg-white rounded-card p-4 shadow-sm mb-3"><p class="font-outfit font-semibold text-stone-800">1BR at The Knox — $900/mo</p><p class="text-xs text-warm-gray mt-1">Dec 2025 - Jul 2026 · -$149</p></div>
+        <div class="bg-white rounded-card p-4 shadow-sm mb-3"><p class="font-outfit font-semibold text-stone-800">2BR at Vol Hall — $650/ea</p><p class="text-xs text-warm-gray mt-1">Jan - May 2026 · Need 1 roommate · Hot 🔥</p></div>
+        <div class="bg-white rounded-card p-4 shadow-sm"><p class="font-outfit font-semibold text-stone-800">Studio sublet — University Village</p><p class="text-xs text-warm-gray mt-1">Immediate · Furnished</p></div>
+      </div>
+      <div class="px-6 pb-4" style="padding-bottom: max(env(safe-area-inset-bottom), 16px);"><div class="nav-pill flex items-center justify-between overflow-x-auto gap-1" id="nav-sublease"></div></div>
+    </div>
+  </div>
+
+  <!-- ==================== ROOMMATES (Tinder) SCREEN ==================== -->
+  <div id="screen-roomies" class="screen hidden">
+    <div class="flex flex-col h-full bg-cream">
+      <div class="flex items-center gap-3 px-5 py-4" style="padding-top: max(env(safe-area-inset-top), 16px);">
+        <button onclick="goToScreen('screen-results')" class="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm"><i data-lucide="arrow-left" class="w-5 h-5 text-stone-600"></i></button>
+        <p class="font-outfit font-bold text-stone-800">Roommate Find</p>
+      </div>
+      <p class="font-dm text-sm text-warm-gray px-5 mb-4">Swipe to match. Early bird, clean freak, night owl — we've got you.</p>
+      <div class="flex-1 px-5 relative overflow-hidden">
+        <div class="w-full h-[340px] rounded-card overflow-hidden relative shadow-lg">
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400" class="w-full h-full object-cover object-top" alt="Roommate">
+          <div class="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-black/80 to-transparent text-white">
+            <p class="font-outfit font-bold text-xl">Marcus, 22</p>
+            <p class="font-dm text-sm opacity-90">CS Major · Early bird · Clean · No pets</p>
+          </div>
+        </div>
+      </div>
+      <div class="flex justify-center gap-6 py-6">
+        <button class="w-14 h-14 rounded-full bg-white shadow flex items-center justify-center text-2xl border-2 border-stone-200">✕</button>
+        <button class="w-14 h-14 rounded-full bg-coral shadow flex items-center justify-center text-2xl text-white">♥</button>
+      </div>
+      <div class="px-6 pb-4" style="padding-bottom: max(env(safe-area-inset-bottom), 16px);"><div class="nav-pill flex items-center justify-between overflow-x-auto gap-1" id="nav-roomies"></div></div>
+    </div>
+  </div>
+
+  <!-- ==================== MAP SCREEN ==================== -->
+  <div id="screen-map" class="screen hidden">
+    <div class="flex flex-col h-full bg-cream">
+      <div class="flex items-center gap-3 px-5 py-4" style="padding-top: max(env(safe-area-inset-top), 16px);">
+        <button onclick="goToScreen('screen-results')" class="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm"><i data-lucide="arrow-left" class="w-5 h-5 text-stone-600"></i></button>
+        <p class="font-outfit font-bold text-stone-800">Map</p>
+      </div>
+      <p class="font-dm text-sm text-warm-gray px-5 mb-4">Hover over pins to see apartment summaries.</p>
+      <div class="flex-1 px-5 pb-24 relative">
+        <div class="w-full h-[350px] rounded-card bg-stone-200 overflow-hidden relative" onmousemove="v3UpdateTooltip(event)" id="v3-map">
+          <svg viewBox="0 0 300 300" class="w-full h-full"><rect width="100%" height="100%" fill="#E7E5E4"/>
+            <circle cx="150" cy="80" r="14" fill="#FF6B6B" style="cursor:pointer" onmouseenter="v3ShowTooltip('The Knox','$1,049/mo · 0.3 mi · Pool, Gym')" onmouseleave="v3HideTooltip()"/>
+            <circle cx="120" cy="130" r="14" fill="#FF6B6B" style="cursor:pointer" onmouseenter="v3ShowTooltip('University Village','$879/mo · 0.8 mi · Parking, Gym')" onmouseleave="v3HideTooltip()"/>
+            <circle cx="180" cy="150" r="14" fill="#FF6B6B" style="cursor:pointer" onmouseenter="v3ShowTooltip('Vol Hall','$749/mo · 1.2 mi · Pet Friendly')" onmouseleave="v3HideTooltip()"/>
+            <text x="150" y="200" text-anchor="middle" fill="#a8a29e" font-size="12">UT Campus</text>
+          </svg>
+          <div id="v3-map-tooltip" class="absolute bg-white rounded-xl p-3 shadow-lg text-sm hidden pointer-events-none z-10" style="max-width:200px"><p class="font-outfit font-semibold" id="v3-tooltip-name"></p><p class="text-warm-gray text-xs mt-1" id="v3-tooltip-desc"></p></div>
+        </div>
+      </div>
+      <div class="px-6 pb-4" style="padding-bottom: max(env(safe-area-inset-bottom), 16px);"><div class="nav-pill flex items-center justify-between overflow-x-auto gap-1" id="nav-map"></div></div>
+    </div>
+  </div>
+
+  <!-- ==================== LEASE ASSIST SCREEN ==================== -->
+  <div id="screen-assist" class="screen hidden">
+    <div class="flex flex-col h-full bg-cream">
+      <div class="flex items-center gap-3 px-5 py-4" style="padding-top: max(env(safe-area-inset-top), 16px);">
+        <button onclick="goToScreen('screen-results')" class="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm"><i data-lucide="arrow-left" class="w-5 h-5 text-stone-600"></i></button>
+        <p class="font-outfit font-bold text-stone-800">24/7 Lease Assistance</p>
+      </div>
+      <p class="font-dm text-sm text-warm-gray px-5 mb-4">Step-by-step guidance. TurboTax-style.</p>
+      <div class="flex-1 overflow-y-auto px-5 pb-24">
+        <div class="bg-white rounded-card p-4 shadow-sm mb-3 flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-coral text-white flex items-center justify-center font-bold">1</div><div><p class="font-outfit font-semibold">Read your lease carefully</p><p class="text-xs text-warm-gray">Key clauses — deposits, subletting, break fees.</p></div></div>
+        <div class="bg-white rounded-card p-4 shadow-sm mb-3 flex items-center gap-4 bg-coral/5"><div class="w-10 h-10 rounded-full bg-coral text-white flex items-center justify-center font-bold">2</div><div><p class="font-outfit font-semibold">Upload or paste your lease</p><p class="text-xs text-warm-gray">AI reviews it and explains in plain English.</p></div></div>
+        <div class="bg-white rounded-card p-4 shadow-sm mb-4 flex items-center gap-4 opacity-70"><div class="w-10 h-10 rounded-full border-2 border-stone-300 flex items-center justify-center font-bold text-stone-400">3</div><div><p class="font-outfit font-semibold text-stone-500">Get questions answered</p><p class="text-xs text-warm-gray">Chat with leasing expert or FAQ.</p></div></div>
+        <button class="w-full bg-coral text-white font-outfit font-semibold py-4 rounded-pill shadow">Start now — it's free</button>
+      </div>
+      <div class="px-6 pb-4" style="padding-bottom: max(env(safe-area-inset-bottom), 16px);"><div class="nav-pill flex items-center justify-between overflow-x-auto gap-1" id="nav-assist"></div></div>
+    </div>
+  </div>
+
+  <!-- ==================== REVIEWS (Verified) SCREEN ==================== -->
+  <div id="screen-reviews" class="screen hidden">
+    <div class="flex flex-col h-full bg-cream">
+      <div class="flex items-center gap-3 px-5 py-4" style="padding-top: max(env(safe-area-inset-top), 16px);">
+        <button onclick="goToScreen('screen-results')" class="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm"><i data-lucide="arrow-left" class="w-5 h-5 text-stone-600"></i></button>
+        <p class="font-outfit font-bold text-stone-800">Verified Reviews</p>
+      </div>
+      <p class="font-dm text-sm text-warm-gray px-5 mb-3">Only from people who actually lived there. UT email verified ✓</p>
+      <div class="flex gap-2 px-5 mb-4"><span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-medium">✓ Verified</span><select class="flex-1 rounded-pill border border-stone-200 px-3 py-2 text-sm"><option>All properties</option><option>The Knox</option><option>Vol Hall</option></select></div>
+      <div class="flex-1 overflow-y-auto px-5 pb-24">
+        <div class="bg-white rounded-card p-4 shadow-sm mb-3"><div class="flex justify-between mb-2"><span class="text-coral">★★★★★</span><span class="text-emerald-600 text-xs">Verified · lived 2023-24</span></div><p class="font-dm italic text-stone-700">"Best decision I made freshman year. Study rooms saved my GPA."</p><p class="text-xs text-warm-gray mt-2">— Sarah M., The Knox · Class of '27</p></div>
+        <div class="bg-white rounded-card p-4 shadow-sm mb-3"><div class="flex justify-between mb-2"><span class="text-coral">★★★★☆</span><span class="text-emerald-600 text-xs">Verified · lived 2022-24</span></div><p class="font-dm italic text-stone-700">"Furnished units are a game changer. Moved in with just my suitcase."</p><p class="text-xs text-warm-gray mt-2">— James K., University Village · Class of '26</p></div>
+        <div class="bg-white rounded-card p-4 shadow-sm"><div class="flex justify-between mb-2"><span class="text-coral">★★★★☆</span><span class="text-emerald-600 text-xs">Verified · lived 2023-24</span></div><p class="font-dm italic text-stone-700">"My dog loves it here. Game room always packed on weekends."</p><p class="text-xs text-warm-gray mt-2">— Tyler R., Vol Hall · Class of '28</p></div>
+      </div>
+      <div class="px-6 pb-4" style="padding-bottom: max(env(safe-area-inset-bottom), 16px);"><div class="nav-pill flex items-center justify-between overflow-x-auto gap-1" id="nav-reviews"></div></div>
+    </div>
+  </div>
+
+  <!-- ==================== TAB PLACEHOLDER (legacy - hidden) ==================== -->
+  <div id="screen-tab-placeholder" class="screen hidden">
+    <div class="flex flex-col h-full bg-cream">
+      <!-- Header -->
+      <div class="flex items-center justify-center px-5 py-4" style="padding-top: max(env(safe-area-inset-top), 16px);">
+        <p class="font-outfit font-bold text-stone-800 text-lg" id="tab-title">roomies</p>
+      </div>
+      
+      <!-- Placeholder content -->
+      <div class="flex-1 flex flex-col items-center justify-center px-8">
+        <div class="w-20 h-20 rounded-full bg-lavender-light flex items-center justify-center mb-6 animate-float" style="animation-duration:3s;">
+          <span class="text-4xl" id="tab-emoji">👋</span>
+        </div>
+        <p class="font-outfit font-semibold text-xl text-stone-700 mb-2 text-center" id="tab-heading">coming soon!</p>
+        <p class="font-dm text-sm text-warm-gray text-center" id="tab-desc">smarty is working on this feature. check back soon!</p>
+      </div>
+
+      <!-- Bottom nav (duplicated for tab screens) -->
+      <div class="px-6 pb-4" style="padding-bottom: max(env(safe-area-inset-bottom), 16px);">
+        <div class="nav-pill flex items-center justify-between" id="tab-nav">
+          <div class="nav-item" onclick="switchNav(this, 'home')">
+            <i data-lucide="home" class="w-5 h-5"></i>
+            <span class="text-[10px] font-dm font-medium">home</span>
+          </div>
+          <div class="nav-item" onclick="switchNav(this, 'roomies')">
+            <i data-lucide="users" class="w-5 h-5"></i>
+            <span class="text-[10px] font-dm font-medium">roomies</span>
+          </div>
+          <div class="nav-item" onclick="switchNav(this, 'reviews')">
+            <i data-lucide="message-circle" class="w-5 h-5"></i>
+            <span class="text-[10px] font-dm font-medium">reviews</span>
+          </div>
+          <div class="nav-item" onclick="switchNav(this, 'alerts')">
+            <i data-lucide="bell" class="w-5 h-5"></i>
+            <span class="text-[10px] font-dm font-medium">alerts</span>
+          </div>
+          <div class="nav-item" onclick="switchNav(this, 'me')">
+            <i data-lucide="user" class="w-5 h-5"></i>
+            <span class="text-[10px] font-dm font-medium">me</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ===================== STATE =====================
+let currentScreen = 'screen-welcome';
+let userName = '';
+let userLastName = '';
+let userEmail = '';
+let userPhone = '';
+let quizAnswers = { bedrooms: '', budget: 1200, amenities: [], distance: '', priorities: [] };
+let currentCardIndex = 0;
+let cardDragging = false;
+let displayedApartments = [];
+
+// 21 Knoxville-area student apartments near UT
+const APARTMENTS_DATA = [
+  { name:'Hub Knoxville', price:1149, priceStr:'$1,149/mo', bedrooms:'1 Bed', amenities:['pool','gym','study spot'], distanceMi:0.4, distance:'0.4 mi to campus', image:'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800', stars:4.7, reviews:234, tagline:'the popular pick 🔥' },
+  { name:'University Walk', price:929, priceStr:'$929/mo', bedrooms:'2 Bed', amenities:['parking','gym','furnished'], distanceMi:0.7, distance:'0.7 mi to campus', image:'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800', stars:4.5, reviews:189, tagline:'best value 💰' },
+  { name:'The Knox Apartments', price:1049, priceStr:'$1,049/mo', bedrooms:'1 Bed', amenities:['pool','gym','study spot'], distanceMi:0.3, distance:'0.3 mi to campus', image:'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800', stars:4.8, reviews:312, tagline:'steps from class 📚' },
+  { name:'The Standard at Knoxville', price:1199, priceStr:'$1,199/mo', bedrooms:'Studio', amenities:['pool','gym','study spot','washer/dryer'], distanceMi:0.2, distance:'0.2 mi to campus', image:'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800', stars:4.7, reviews:278, tagline:'right on campus ✨' },
+  { name:'Villas Knoxville', price:849, priceStr:'$849/mo', bedrooms:'2 Bed', amenities:['parking','washer/dryer','pets ok'], distanceMi:1.1, distance:'1.1 mi to campus', image:'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800', stars:4.4, reviews:156, tagline:'pet friendly 🐕' },
+  { name:'The Commons at Knoxville', price:899, priceStr:'$899/mo', bedrooms:'2 Bed', amenities:['gym','washer/dryer','furnished'], distanceMi:0.9, distance:'0.9 mi to campus', image:'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800', stars:4.5, reviews:167, tagline:'quiet & clean ✨' },
+  { name:'Slate at 901', price:1099, priceStr:'$1,099/mo', bedrooms:'1 Bed', amenities:['pool','gym','game room'], distanceMi:0.5, distance:'0.5 mi to campus', image:'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800', stars:4.6, reviews:198, tagline:'social butterfly 🦋' },
+  { name:'TENN', price:1249, priceStr:'$1,249/mo', bedrooms:'Studio', amenities:['pool','gym','study spot','furnished'], distanceMi:0.2, distance:'0.2 mi to campus', image:'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800', stars:4.8, reviews:245, tagline:'premium vibes 💎' },
+  { name:'Tradition at Knoxville', price:799, priceStr:'$799/mo', bedrooms:'3+ Bed', amenities:['parking','washer/dryer','pets ok'], distanceMi:1.8, distance:'1.8 mi to campus', image:'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800', stars:4.3, reviews:98, tagline:'best for groups 👥' },
+  { name:'303 Flats', price:949, priceStr:'$949/mo', bedrooms:'1 Bed', amenities:['pool','parking','study spot'], distanceMi:0.6, distance:'0.6 mi to campus', image:'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800', stars:4.5, reviews:201, tagline:'pool parties 🎉' },
+  { name:'The Davy', price:999, priceStr:'$999/mo', bedrooms:'2 Bed', amenities:['gym','washer/dryer','game room'], distanceMi:0.5, distance:'0.5 mi to campus', image:'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800', stars:4.6, reviews:176, tagline:'game room gang 🎮' },
+  { name:'The Heights', price:949, priceStr:'$949/mo', bedrooms:'1 Bed', amenities:['pool','parking','study spot'], distanceMi:0.6, distance:'0.6 mi to campus', image:'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800', stars:4.6, reviews:189, tagline:'pool parties 🎉' },
+  { name:'Knox Ridge', price:729, priceStr:'$729/mo', bedrooms:'3+ Bed', amenities:['parking','washer/dryer'], distanceMi:2.0, distance:'2.0 mi to campus', image:'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800', stars:4.2, reviews:134, tagline:'super affordable 💵' },
+  { name:'The Woodlands', price:879, priceStr:'$879/mo', bedrooms:'2 Bed', amenities:['gym','parking','pets ok'], distanceMi:1.2, distance:'1.2 mi to campus', image:'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800', stars:4.4, reviews:143, tagline:'quiet woods 🌲' },
+  { name:'The Mark', price:1129, priceStr:'$1,129/mo', bedrooms:'1 Bed', amenities:['pool','gym','study spot','furnished'], distanceMi:0.4, distance:'0.4 mi to campus', image:'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800', stars:4.7, reviews:212, tagline:'luxury feel ✨' },
+  { name:'Ever', price:1029, priceStr:'$1,029/mo', bedrooms:'Studio', amenities:['pool','gym','washer/dryer'], distanceMi:0.5, distance:'0.5 mi to campus', image:'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800', stars:4.5, reviews:167, tagline:'cozy studio 🏠' },
+  { name:'Livano', price:949, priceStr:'$949/mo', bedrooms:'2 Bed', amenities:['gym','washer/dryer','furnished'], distanceMi:0.8, distance:'0.8 mi to campus', image:'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800', stars:4.5, reviews:178, tagline:'move-in ready 📦' },
+  { name:'Flagship Kerns Apartments', price:829, priceStr:'$829/mo', bedrooms:'2 Bed', amenities:['parking','washer/dryer','gym'], distanceMi:1.0, distance:'1.0 mi to campus', image:'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800', stars:4.4, reviews:156, tagline:'solid value 💪' },
+  { name:'Nova Knoxville', price:1079, priceStr:'$1,079/mo', bedrooms:'1 Bed', amenities:['pool','gym','study spot'], distanceMi:0.5, distance:'0.5 mi to campus', image:'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800', stars:4.6, reviews:194, tagline:'modern living 🔥' },
+  { name:'Quarry Trail Student Apartments', price:699, priceStr:'$699/mo', bedrooms:'3+ Bed', amenities:['parking','washer/dryer','pets ok'], distanceMi:2.1, distance:'2.1 mi to campus', image:'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800', stars:4.2, reviews:98, tagline:'budget friendly 🎯' },
+  { name:'Union Knoxville', price:1179, priceStr:'$1,179/mo', bedrooms:'Studio', amenities:['pool','gym','game room','furnished'], distanceMi:0.3, distance:'0.3 mi to campus', image:'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800', stars:4.7, reviews:267, tagline:'best location 📍' },
+];
+
+const tabData = {
+  roomies: { emoji: '🤝', heading: 'find your people', desc: 'match with compatible roommates based on your vibe, sleep schedule, and study habits.' },
+  reviews: { emoji: '💬', heading: 'real student reviews', desc: 'hear from actual ut students about their apartment experiences. no cap.' },
+  alerts: { emoji: '🔔', heading: 'price drop alerts', desc: 'get notified instantly when your saved apartments drop in price.' },
+  me: { emoji: '😎', heading: 'your profile', desc: 'manage your preferences, saved apartments, and application status.' },
+};
+
+// ===================== V3 SURVEY QUIZ =====================
+let currentQuizStepV3 = 1;
+let priorityOrderV3 = [];
+
+function initQuizV3() {
+  currentQuizStepV3 = 1;
+  priorityOrderV3 = [];
+  quizAnswers = { bedrooms: '', budget: 1200, amenities: [], distance: '', priorities: [] };
+  document.querySelectorAll('.quiz-step').forEach((s, i) => {
+    s.classList.toggle('hidden', i !== 0);
+    s.classList.toggle('active', i === 0);
+  });
+  document.querySelectorAll('.quiz-tile-v3').forEach(t => t.classList.remove('selected'));
+  document.querySelectorAll('.amenity-tile-v3').forEach(t => t.classList.remove('selected'));
+  document.querySelectorAll('.distance-tile-v3').forEach(t => t.classList.remove('selected'));
+  document.querySelectorAll('.priority-tile-v3').forEach(t => {
+    t.classList.remove('ranked');
+    const badge = t.querySelector('.priority-num-v3');
+    if (badge) badge.remove();
+  });
+  document.getElementById('budget-slider-v3').value = 1200;
+  document.getElementById('budget-display-v3').textContent = '$1,200';
+  document.getElementById('quiz-progress-label').textContent = '01 / 05';
+  document.getElementById('q1-v3-next').disabled = true;
+  document.getElementById('q1-v3-next').classList.add('opacity-40', 'pointer-events-none');
+  document.getElementById('q4-v3-next').disabled = true;
+  document.getElementById('q4-v3-next').classList.add('opacity-40', 'pointer-events-none');
+  document.getElementById('q5-v3-finish').disabled = true;
+  document.getElementById('q5-v3-finish').classList.add('opacity-40', 'pointer-events-none');
+  lucide.createIcons();
+}
+
+function selectBedroomV3(el, val) {
+  document.querySelectorAll('#quiz-v3-q1 .quiz-tile-v3').forEach(t => t.classList.remove('selected'));
+  el.classList.add('selected');
+  quizAnswers.bedrooms = val;
+  const btn = document.getElementById('q1-v3-next');
+  btn.disabled = false;
+  btn.classList.remove('opacity-40', 'pointer-events-none');
+}
+
+function updateBudgetV3(val) {
+  const v = parseInt(val);
+  quizAnswers.budget = v;
+  document.getElementById('budget-display-v3').textContent = '$' + v.toLocaleString();
+}
+
+function toggleAmenityV3(el) {
+  el.classList.toggle('selected');
+  const selected = Array.from(document.querySelectorAll('.amenity-tile-v3.selected')).map(e => e.dataset.amenity);
+  quizAnswers.amenities = selected;
+}
+
+function selectDistanceV3(el, val) {
+  document.querySelectorAll('.distance-tile-v3').forEach(t => t.classList.remove('selected'));
+  el.classList.add('selected');
+  quizAnswers.distance = val;
+  const btn = document.getElementById('q4-v3-next');
+  btn.disabled = false;
+  btn.classList.remove('opacity-40', 'pointer-events-none');
+}
+
+function rankPriorityV3(el) {
+  if (el.classList.contains('ranked')) return;
+  if (priorityOrderV3.length >= 4) return;
+  priorityOrderV3.push(el.dataset.label);
+  el.classList.add('ranked');
+  const badge = document.createElement('span');
+  badge.className = 'priority-num-v3 ml-2';
+  badge.textContent = priorityOrderV3.length;
+  el.appendChild(badge);
+  quizAnswers.priorities = priorityOrderV3.map(l => {
+    const emoji = { price: 'price 💰', location: 'location 📍', amenities: 'amenities 🏊', reviews: 'reviews ⭐' };
+    return emoji[l] || l;
+  });
+  if (priorityOrderV3.length >= 4) {
+    const btn = document.getElementById('q5-v3-finish');
+    btn.disabled = false;
+    btn.classList.remove('opacity-40', 'pointer-events-none');
+  }
+}
+
+function nextQuizV3(step) {
+  document.getElementById(`quiz-v3-q${currentQuizStepV3}`).classList.add('hidden');
+  document.getElementById(`quiz-v3-q${currentQuizStepV3}`).classList.remove('active');
+  document.getElementById(`quiz-v3-q${step}`).classList.remove('hidden');
+  document.getElementById(`quiz-v3-q${step}`).classList.add('active');
+  currentQuizStepV3 = step;
+  document.getElementById('quiz-progress-label').textContent = String(step).padStart(2,'0') + ' / 05';
+  lucide.createIcons();
+}
+
+function prevQuizV3(step) {
+  document.getElementById(`quiz-v3-q${currentQuizStepV3}`).classList.add('hidden');
+  document.getElementById(`quiz-v3-q${currentQuizStepV3}`).classList.remove('active');
+  document.getElementById(`quiz-v3-q${step}`).classList.remove('hidden');
+  document.getElementById(`quiz-v3-q${step}`).classList.add('active');
+  currentQuizStepV3 = step;
+  document.getElementById('quiz-progress-label').textContent = String(step).padStart(2,'0') + ' / 05';
+  lucide.createIcons();
+}
+
+function finishQuizV3() {
+  goToScreen('screen-results');
+}
+
+// ===================== SCREEN MANAGEMENT =====================
+function goToScreen(screenId) {
+  document.querySelectorAll('.screen').forEach(s => { s.classList.remove('active'); s.classList.add('hidden'); });
+  const target = document.getElementById(screenId);
+  target.classList.remove('hidden');
+  target.classList.add('active');
+  currentScreen = screenId;
+  
+  if (screenId === 'screen-results') {
+    displayedApartments = computeFilteredResultsV3();
+    setTimeout(() => { renderCards(); lucide.createIcons(); }, 100);
+  }
+  lucide.createIcons();
+}
+
+// ===================== NAV =====================
+const navTabs = ['home','sublease','roomies','map','assist','reviews'];
+function renderNavPill(containerId, activeTab) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = navTabs.map(t => `
+    <div class="nav-item ${t===activeTab?'active':''}" onclick="switchNav(this,'${t}')">
+      <i data-lucide="${t==='home'?'home':t==='sublease'?'calendar':t==='roomies'?'users':t==='map'?'map-pin':t==='assist'?'shield':'message-circle'}" class="w-4 h-4"></i>
+      <span class="text-[9px] font-dm font-medium">${t}</span>
+    </div>
+  `).join('');
+  lucide.createIcons();
+}
+function switchNav(el, tab) {
+  if (tab === 'home') { goToScreen('screen-results'); return; }
+  const screenId = 'screen-' + tab;
+  if (document.getElementById(screenId)) {
+    goToScreen(screenId);
+    setTimeout(() => {
+      renderNavPill('nav-' + tab, tab);
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      const items = document.querySelectorAll('#nav-' + tab + ' .nav-item');
+      const idx = navTabs.indexOf(tab);
+      if (items[idx]) items[idx].classList.add('active');
+    }, 50);
+  }
+}
+
+// ===================== CHAT ENGINE =====================
+const chatArea = document.getElementById('chat-area');
+const inputArea = document.getElementById('input-content');
+let chatStep = 0;
+
+function scrollChat() {
+  setTimeout(() => { chatArea.scrollTop = chatArea.scrollHeight; }, 50);
+}
+
+function addTypingIndicator() {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'flex items-start gap-2';
+  wrapper.id = 'typing-indicator';
+  wrapper.innerHTML = `
+    <div class="w-7 h-7 rounded-full bg-coral flex items-center justify-center text-white text-[10px] font-outfit font-bold flex-shrink-0 mt-1">SL</div>
+    <div class="bot-bubble flex items-center gap-1 py-3 px-5" style="animation:none;opacity:1;">
+      <span class="typing-dot"></span>
+      <span class="typing-dot"></span>
+      <span class="typing-dot"></span>
+    </div>
+  `;
+  chatArea.appendChild(wrapper);
+  scrollChat();
+}
+
+function removeTypingIndicator() {
+  const el = document.getElementById('typing-indicator');
+  if (el) el.remove();
+}
+
+function addBotMessage(text, delay = 0) {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      addTypingIndicator();
+      scrollChat();
+      const typingDelay = 600 + Math.random() * 600;
+      setTimeout(() => {
+        removeTypingIndicator();
+        const wrapper = document.createElement('div');
+        wrapper.className = 'flex items-start gap-2';
+        wrapper.innerHTML = `
+          <div class="w-7 h-7 rounded-full bg-coral flex items-center justify-center text-white text-[10px] font-outfit font-bold flex-shrink-0 mt-1">SL</div>
+          <div class="bot-bubble">${text}</div>
+        `;
+        chatArea.appendChild(wrapper);
+        scrollChat();
+        resolve();
+      }, typingDelay);
+    }, delay);
+  });
+}
+
+function addUserMessage(text) {
+  const wrapper = document.createElement('div');
+  wrapper.className = 'flex justify-end';
+  wrapper.innerHTML = `<div class="user-bubble">${text}</div>`;
+  chatArea.appendChild(wrapper);
+  scrollChat();
+}
+
+function setTextInput(placeholder, onSubmit) {
+  inputArea.innerHTML = `
+    <input type="text" id="chat-input" class="flex-1 bg-stone-100 rounded-pill px-5 py-3 text-stone-800 text-sm font-dm outline-none focus:ring-2 focus:ring-coral/30 transition-all" placeholder="${placeholder}" autocomplete="off">
+    <button onclick="submitChatInput()" id="send-btn" class="w-11 h-11 rounded-full bg-coral flex items-center justify-center text-white shadow-md hover:shadow-lg transition-all active:scale-90 hover:bg-coral-dark flex-shrink-0">
+      <i data-lucide="send" class="w-5 h-5"></i>
+    </button>
+  `;
+  lucide.createIcons();
+  const input = document.getElementById('chat-input');
+  input.focus();
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') submitChatInput(); });
+  window._chatInputCallback = onSubmit;
+}
+
+function submitChatInput() {
+  const input = document.getElementById('chat-input');
+  const val = input.value.trim();
+  if (!val) return;
+  addUserMessage(val);
+  inputArea.innerHTML = `<div class="flex-1 bg-stone-100 rounded-pill px-5 py-3 text-stone-400 text-sm font-dm">typing...</div>`;
+  if (window._chatInputCallback) window._chatInputCallback(val);
+}
+
+function setQuickReplies(options, onSelect, multiSelect = false) {
+  const selected = new Set();
+  let html = `<div class="flex flex-wrap gap-2 animate-slide-up" id="quick-replies">`;
+  options.forEach(opt => {
+    html += `<button class="quick-reply" data-value="${opt}">${opt}</button>`;
+  });
+  if (multiSelect) {
+    html += `<button class="quick-reply bg-coral text-white border-coral mt-1 w-full" id="done-multi" style="display:none;">done ✓</button>`;
+  }
+  html += `</div>`;
+  inputArea.innerHTML = html;
+
+  document.querySelectorAll('#quick-replies .quick-reply:not(#done-multi)').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (multiSelect) {
+        btn.classList.toggle('multi-selected');
+        const val = btn.dataset.value;
+        if (selected.has(val)) selected.delete(val); else selected.add(val);
+        btn.style.animation = 'jelly 0.4s ease';
+        const doneBtn = document.getElementById('done-multi');
+        doneBtn.style.display = selected.size > 0 ? 'block' : 'none';
+      } else {
+        btn.style.animation = 'jelly 0.4s ease';
+        btn.classList.add('selected');
+        setTimeout(() => {
+          addUserMessage(btn.dataset.value);
+          inputArea.innerHTML = `<div class="flex-1 bg-stone-100 rounded-pill px-5 py-3 text-stone-400 text-sm font-dm">smarty is typing...</div>`;
+          onSelect(btn.dataset.value);
+        }, 300);
+      }
+    });
+  });
+
+  if (multiSelect) {
+    setTimeout(() => {
+      const doneBtn = document.getElementById('done-multi');
+      if (doneBtn) {
+        doneBtn.addEventListener('click', () => {
+          const arr = Array.from(selected);
+          addUserMessage(arr.join(', '));
+          inputArea.innerHTML = `<div class="flex-1 bg-stone-100 rounded-pill px-5 py-3 text-stone-400 text-sm font-dm">smarty is typing...</div>`;
+          onSelect(arr);
+        });
+      }
+    }, 50);
+  }
+}
+
+function setBudgetSlider(onSubmit) {
+  inputArea.innerHTML = `
+    <div class="w-full animate-slide-up">
+      <div class="flex items-center justify-between mb-2 px-1">
+        <span class="text-xs font-dm text-warm-gray">$500</span>
+        <span class="font-outfit font-bold text-2xl text-coral" id="budget-display">$1,200</span>
+        <span class="text-xs font-dm text-warm-gray">$2,500</span>
+      </div>
+      <input type="range" min="500" max="2500" step="50" value="1200" id="budget-slider" class="w-full mb-3">
+      <button onclick="submitBudget()" class="w-full bg-coral text-white font-dm font-semibold py-3 rounded-pill hover:bg-coral-dark transition-all active:scale-95 shadow-md">
+        set budget 💰
+      </button>
+    </div>
+  `;
+  const slider = document.getElementById('budget-slider');
+  const display = document.getElementById('budget-display');
+  slider.addEventListener('input', () => {
+    display.textContent = '$' + parseInt(slider.value).toLocaleString();
+  });
+  window._budgetCallback = onSubmit;
+}
+
+window.submitBudget = function() {
+  const val = parseInt(document.getElementById('budget-slider').value);
+  quizAnswers.budget = val;
+  addUserMessage('$' + val.toLocaleString() + '/month');
+  inputArea.innerHTML = `<div class="flex-1 bg-stone-100 rounded-pill px-5 py-3 text-stone-400 text-sm font-dm">smarty is typing...</div>`;
+  if (window._budgetCallback) window._budgetCallback(val);
+};
+
+function setPrioritySelect(options, onComplete) {
+  const order = [];
+  let html = `<div class="w-full animate-slide-up" id="priority-area">
+    <p class="text-xs font-dm text-warm-gray mb-2 text-center">tap in order of importance (1st, 2nd, 3rd, 4th)</p>
+    <div class="flex flex-wrap gap-2 justify-center" id="priority-buttons">`;
+  options.forEach(opt => {
+    html += `<button class="quick-reply relative" data-value="${opt}">${opt}</button>`;
+  });
+  html += `</div></div>`;
+  inputArea.innerHTML = html;
+
+  document.querySelectorAll('#priority-buttons .quick-reply').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const val = btn.dataset.value;
+      if (order.includes(val)) return;
+      order.push(val);
+      btn.classList.add('selected');
+      btn.style.animation = 'jelly 0.4s ease';
+      // Add priority badge
+      const badge = document.createElement('span');
+      badge.className = 'priority-badge';
+      badge.textContent = order.length;
+      btn.style.position = 'relative';
+      btn.appendChild(badge);
+
+      if (order.length === options.length) {
+        setTimeout(() => {
+          addUserMessage(order.map((o, i) => `${i+1}. ${o}`).join(', '));
+          inputArea.innerHTML = `<div class="flex-1 bg-stone-100 rounded-pill px-5 py-3 text-stone-400 text-sm font-dm">smarty is typing...</div>`;
+          onComplete(order);
+        }, 400);
+      }
+    });
+  });
+}
+
+function updateProgress(step, total) {
+  const prog = document.getElementById('chat-progress');
+  prog.style.opacity = '1';
+  prog.textContent = `${step}/${total}`;
+}
+
+// ===================== ONBOARDING FLOW =====================
+async function startOnboarding() {
+  chatArea.innerHTML = '';
+  chatStep = 0;
+
+  await addBotMessage("hey! i'm smarty, your apartment finder 🏠✨");
+  await addBotMessage("i'll help you find the perfect place near ut. it only takes like 2 minutes, promise!", 200);
+  await addBotMessage("what should i call you?", 300);
+  
+  setTextInput("your first name...", async (val) => {
+    userName = val;
+    await addBotMessage(`nice to meet you, ${userName}! 🎉 and your last name?`, 200);
+    setTextInput("your last name...", async (val2) => {
+      userLastName = val2;
+      await addBotMessage(`${userName} ${userLastName}. love it. 💛`, 200);
+      await addBotMessage("drop your email so we can save your matches", 300);
+      setTextInput("your@email.com", async (val3) => {
+        userEmail = val3;
+        await addBotMessage("perfect! last one. phone number for price alerts? 📱", 200);
+        setTextInput("(555) 123-4567", async (val4) => {
+          userPhone = val4;
+          await addBotMessage(`you're all set, ${userName}! 🎊`, 200);
+          await addBotMessage("now let's find your dream apartment. i'll ask you a few quick questions.", 400);
+          
+          inputArea.innerHTML = `
+            <button onclick="startQuiz()" class="w-full bg-coral text-white font-outfit font-semibold py-4 rounded-pill hover:bg-coral-dark transition-all active:scale-95 shadow-lg animate-slide-up" style="box-shadow:0 6px 24px rgba(255,107,107,0.3);">
+              start matching 🔥
+            </button>
+          `;
+        });
+      });
+    });
+  });
+}
+
+// ===================== QUIZ FLOW =====================
+async function startQuiz() {
+  inputArea.innerHTML = `<div class="flex-1 bg-stone-100 rounded-pill px-5 py-3 text-stone-400 text-sm font-dm">smarty is typing...</div>`;
+  
+  // Q1: Bedrooms
+  updateProgress(1, 5);
+  await addBotMessage("how many bedrooms are we talking? 🛏️");
+  setQuickReplies(['studio', '1 bed', '2 bed', '3 bed', '4+'], async (val) => {
+    quizAnswers.bedrooms = val;
+    
+    const reactions = { 'studio': 'cozy vibes! 🏡', '1 bed': 'solo living, nice! 😎', '2 bed': 'room for a roomie! 🤝', '3 bed': 'squad goals! 🎯', '4+': 'the whole crew! 🎉' };
+    await addBotMessage(reactions[val] || 'solid choice!');
+    
+    // Q2: Budget
+    updateProgress(2, 5);
+    await addBotMessage("what's your budget looking like? 💸", 200);
+    setBudgetSlider(async (budget) => {
+      const budgetReactions = budget < 800 ? "we'll find something great in that range! 💪" : budget < 1200 ? "nice, $" + budget.toLocaleString() + " gives you solid options! 👌" : "baller budget! you'll have tons of choices 🔥";
+      await addBotMessage(budgetReactions);
+      
+      // Q3: Amenities
+      updateProgress(3, 5);
+      await addBotMessage("what can't you live without? pick all that apply 🏊‍♂️", 200);
+      setQuickReplies(['pool 🏊', 'gym 💪', 'study spot 📚', 'washer/dryer 👕', 'parking 🚗', 'pets ok 🐕', 'furnished 🛋️', 'game room 🎮'], async (vals) => {
+        quizAnswers.amenities = vals;
+        const count = vals.length;
+        const amenityReaction = count > 4 ? "you know what you want, i respect that! 💯" : count > 2 ? "great picks! 👍" : "keeping it simple, i like it ✨";
+        await addBotMessage(amenityReaction);
+        
+        // Q4: Distance
+        updateProgress(4, 5);
+        await addBotMessage("how close to campus? 🎓", 200);
+        setQuickReplies(['walking distance 🚶', 'short drive 🚗', 'wherever 🤷'], async (dist) => {
+          quizAnswers.distance = dist;
+          await addBotMessage(dist.includes('walking') ? "no car needed, smart! 🧠" : dist.includes('drive') ? "a little drive never hurt! 🛣️" : "flexible, i like it! 🌍");
+          
+          // Q5: Priorities
+          updateProgress(5, 5);
+          await addBotMessage("last one! what matters most to you? tap in order 🏆", 200);
+          setPrioritySelect(['price 💰', 'amenities 🏊', 'location 📍', 'reviews ⭐'], async (priorities) => {
+            quizAnswers.priorities = priorities;
+            await addBotMessage("got it! you've got great taste, " + userName + " 😄");
+            
+            // Loading
+            await addBotMessage("analyzing 15 apartments near ut... 🔍", 300);
+            
+            // Fun loading in chat
+            const loadingWrapper = document.createElement('div');
+            loadingWrapper.className = 'flex items-start gap-2';
+            loadingWrapper.id = 'loading-msg';
+            loadingWrapper.innerHTML = `
+              <div class="w-7 h-7 rounded-full bg-coral flex items-center justify-center text-white text-[10px] font-outfit font-bold flex-shrink-0 mt-1">SL</div>
+              <div class="bot-bubble flex flex-col items-center gap-2 py-4 px-8">
+                <div class="house-spinner">🏠</div>
+                <span class="text-xs text-warm-gray font-dm">crunching the numbers...</span>
+              </div>
+            `;
+            chatArea.appendChild(loadingWrapper);
+            scrollChat();
+            
+            setTimeout(async () => {
+              document.getElementById('loading-msg').remove();
+              await addBotMessage("found your top 3 matches! 🎉🎉🎉");
+              await addBotMessage("these apartments are basically made for you. check them out!", 300);
+              
+              inputArea.innerHTML = `
+                <button onclick="goToScreen('screen-results')" class="w-full bg-coral text-white font-outfit font-semibold py-4 rounded-pill hover:bg-coral-dark transition-all active:scale-95 shadow-lg animate-slide-up" style="box-shadow:0 6px 24px rgba(255,107,107,0.3);">
+                  see my matches ✨
+                </button>
+              `;
+            }, 2500);
+          });
+        });
+      });
+    });
+  });
+}
+
+function computeFilteredResultsV3() {
+  const budget = quizAnswers.budget || 1200;
+  const wantedAmenities = (quizAnswers.amenities || []).map(a => (a.replace(/[\u{1F300}-\u{1F9FF}]/gu, '') || a).trim().toLowerCase()).filter(Boolean);
+  const bedMap = { studio:'Studio', '1 bed':'1 Bed', '2 bed':'2 Bed', '3 bed':'2 Bed', '4+':'3+ Bed' };
+  const wantedBed = quizAnswers.bedrooms ? bedMap[quizAnswers.bedrooms] || null : null;
+  const distMax = !quizAnswers.distance ? 999 : (quizAnswers.distance + '').includes('walking') ? 0.5 : (quizAnswers.distance + '').includes('drive') ? 1.5 : 999;
+  let filtered = APARTMENTS_DATA.filter(apt => {
+    if (wantedBed && apt.bedrooms !== wantedBed) return false;
+    if (apt.price > budget + 200) return false;
+    if (apt.distanceMi > distMax) return false;
+    return true;
+  });
+  if (filtered.length === 0) filtered = APARTMENTS_DATA;
+  filtered = filtered.map(apt => {
+    const matchAm = wantedAmenities.filter(w => apt.amenities.some(aa => aa.toLowerCase().includes(w) || w.includes(aa.toLowerCase()))).length;
+    let score = 70 + matchAm * 8;
+    if (apt.price <= budget) score += 10;
+    score += apt.distanceMi <= 0.5 ? 8 : apt.distanceMi <= 1 ? 4 : 0;
+    return { ...apt, match: Math.min(99, Math.round(score)) };
+  });
+  filtered.sort((a,b) => b.match - a.match);
+  const priorities = quizAnswers.priorities || [];
+  const key = (priorities[0] || '').toLowerCase();
+  if (key.includes('price')) filtered.sort((a,b) => a.price - b.price);
+  else if (key.includes('location')) filtered.sort((a,b) => a.distanceMi - b.distanceMi);
+  else if (key.includes('amenities')) filtered.sort((a,b) => b.match - a.match);
+  else if (key.includes('reviews')) filtered.sort((a,b) => b.stars - a.stars);
+  return filtered.slice(0, 6);
+}
+
+// ===================== RESULTS CARDS =====================
+function renderCards() {
+  const stack = document.getElementById('card-stack');
+  stack.innerHTML = '';
+  let apts = displayedApartments.length ? displayedApartments : APARTMENTS_DATA.slice(0, 6);
+  // Ensure all apts have match score for badge display
+  apts = apts.map(a => ({ ...a, match: a.match ?? (70 + Math.round(Math.random() * 25)) }));
+  currentCardIndex = 0;
+
+  apts.forEach((apt, i) => {
+    const card = document.createElement('div');
+    card.className = 'apt-card';
+    card.id = `card-${i}`;
+    card.style.zIndex = apts.length - i;
+    if (i !== 0) {
+      card.style.transform = `scale(${1 - i * 0.05}) translateY(${i * 12}px)`;
+      card.style.opacity = i === 1 ? '0.7' : '0.4';
+    }
+    if (i > 1) card.style.pointerEvents = 'none';
+
+    const stars = '★'.repeat(Math.floor(apt.stars)) + (apt.stars % 1 >= 0.5 ? '½' : '');
+    const priceDisplay = apt.priceStr || ('$' + apt.price + '/mo');
+    
+    card.innerHTML = `
+      <div class="relative w-full h-full">
+        <!-- Image -->
+        <img src="${apt.image}" alt="${apt.name}" class="w-full h-[58%] object-cover" draggable="false">
+        
+        <!-- Match badge -->
+        <div class="absolute top-4 left-4 bg-coral text-white text-xs font-outfit font-bold px-4 py-1.5 rounded-pill shadow-lg">
+          ${apt.match}% your vibe ✨
+        </div>
+        
+        <!-- Tagline badge -->
+        <div class="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-stone-700 text-xs font-dm px-3 py-1.5 rounded-pill shadow-sm">
+          ${apt.tagline}
+        </div>
+        
+        <!-- Content -->
+        <div class="absolute bottom-0 left-0 right-0 bg-white rounded-t-[28px] p-6" style="top:55%;box-shadow:0 -4px 20px rgba(0,0,0,0.05);">
+          <div class="flex items-start justify-between mb-2">
+            <div>
+              <h3 class="font-outfit font-bold text-2xl text-stone-800">${apt.name}</h3>
+              <p class="font-dm text-sm text-warm-gray flex items-center gap-1 mt-0.5">
+                <i data-lucide="map-pin" class="w-3.5 h-3.5"></i>
+                ${apt.distance || (apt.distanceMi + ' mi to campus')}
+              </p>
+            </div>
+            <div class="text-right">
+              <p class="font-outfit font-bold text-2xl text-coral">${priceDisplay}</p>
+              <div class="flex items-center gap-1 mt-0.5 justify-end">
+                <span class="text-coral text-sm">${stars}</span>
+                <span class="text-xs text-warm-gray font-dm">${apt.stars} (${apt.reviews})</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Amenities -->
+          <div class="flex flex-wrap gap-1.5 mt-3 mb-4">
+            ${apt.amenities.map(a => `<span class="bg-lavender-light text-lavender-dark text-xs font-dm px-3 py-1 rounded-pill">${a}</span>`).join('')}
+          </div>
+          
+          <!-- Action buttons -->
+          <div class="flex items-center gap-3">
+            <button onclick="toggleHeart(this, event)" class="flex-1 flex items-center justify-center gap-2 py-3 rounded-pill border-2 border-coral text-coral font-dm font-semibold text-sm hover:bg-coral hover:text-white transition-all active:scale-95">
+              <i data-lucide="heart" class="w-5 h-5"></i>
+              save
+            </button>
+            <button onclick="toggleBell(this, event)" class="flex-1 flex items-center justify-center gap-2 py-3 rounded-pill border-2 border-lavender text-lavender-dark font-dm font-semibold text-sm hover:bg-lavender hover:text-white transition-all active:scale-95">
+              <i data-lucide="bell" class="w-5 h-5"></i>
+              alert me
+            </button>
+            <button class="w-12 h-12 rounded-full bg-mint/20 flex items-center justify-center text-mint hover:bg-mint hover:text-white transition-all active:scale-90 flex-shrink-0">
+              <i data-lucide="external-link" class="w-5 h-5"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    stack.appendChild(card);
+    setupCardDrag(card, i);
+  });
+
+  displayedApartments = apts;
+  renderDots();
+  updateNavButtons();
+  lucide.createIcons();
+}
+
+function renderDots() {
+  const dotsContainer = document.getElementById('card-dots');
+  dotsContainer.innerHTML = '';
+  const apts = displayedApartments.length ? displayedApartments : APARTMENTS_DATA.slice(0, 3);
+  apts.forEach((_, i) => {
+    const dot = document.createElement('div');
+    dot.className = `w-2.5 h-2.5 rounded-full transition-all duration-300 ${i === currentCardIndex ? 'bg-coral w-7' : 'bg-stone-300'}`;
+    dotsContainer.appendChild(dot);
+  });
+}
+
+function updateNavButtons() {
+  const apts = displayedApartments.length ? displayedApartments : APARTMENTS_DATA.slice(0, 3);
+  document.getElementById('btn-prev').disabled = currentCardIndex === 0;
+  document.getElementById('btn-next').disabled = currentCardIndex === apts.length - 1;
+}
+
+function animateToCard(index) {
+  const apts = displayedApartments.length ? displayedApartments : APARTMENTS_DATA.slice(0, 3);
+  if (index < 0 || index >= apts.length) return;
+  currentCardIndex = index;
+  
+  apts.forEach((_, i) => {
+    const card = document.getElementById(`card-${i}`);
+    if (!card) return;
+    const offset = i - currentCardIndex;
+    
+    if (offset < 0) {
+      card.style.transform = `translateX(-120%) rotate(-10deg)`;
+      card.style.opacity = '0';
+      card.style.pointerEvents = 'none';
+    } else if (offset === 0) {
+      card.style.transform = 'scale(1) translateY(0)';
+      card.style.opacity = '1';
+      card.style.zIndex = 10;
+      card.style.pointerEvents = 'auto';
+    } else if (offset === 1) {
+      card.style.transform = `scale(0.95) translateY(12px)`;
+      card.style.opacity = '0.6';
+      card.style.zIndex = 5;
+      card.style.pointerEvents = 'none';
+    } else {
+      card.style.transform = `scale(0.9) translateY(24px)`;
+      card.style.opacity = '0.3';
+      card.style.zIndex = 1;
+      card.style.pointerEvents = 'none';
+    }
+  });
+  
+  renderDots();
+  updateNavButtons();
+  
+  // Hide swipe hint after first interaction
+  const hint = document.getElementById('swipe-hint');
+  if (hint) hint.style.opacity = '0';
+}
+
+function nextCard() {
+  const apts = displayedApartments.length ? displayedApartments : APARTMENTS_DATA.slice(0, 3);
+  if (currentCardIndex < apts.length - 1) animateToCard(currentCardIndex + 1);
+}
+
+function prevCard() {
+  if (currentCardIndex > 0) animateToCard(currentCardIndex - 1);
+}
+
+// ===================== CARD DRAG/SWIPE =====================
+function setupCardDrag(card, index) {
+  let startX = 0, currentX = 0, isDragging = false;
+
+  const onStart = (e) => {
+    if (index !== currentCardIndex) return;
+    isDragging = true;
+    startX = e.type === 'mousedown' ? e.clientX : e.touches[0].clientX;
+    card.style.transition = 'none';
+  };
+
+  const onMove = (e) => {
+    if (!isDragging) return;
+    const x = e.type === 'mousemove' ? e.clientX : e.touches[0].clientX;
+    currentX = x - startX;
+    const rotation = currentX * 0.08;
+    card.style.transform = `translateX(${currentX}px) rotate(${rotation}deg)`;
+  };
+
+  const onEnd = () => {
+    if (!isDragging) return;
+    isDragging = false;
+    card.style.transition = 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease';
+    
+    if (Math.abs(currentX) > 100) {
+      const aptCount = (displayedApartments.length ? displayedApartments : APARTMENTS_DATA.slice(0,3)).length;
+      if (currentX < 0 && currentCardIndex < aptCount - 1) {
+        nextCard();
+      } else if (currentX > 0 && currentCardIndex > 0) {
+        prevCard();
+      } else {
+        card.style.transform = 'scale(1) translateY(0)';
+      }
+    } else {
+      card.style.transform = 'scale(1) translateY(0)';
+    }
+    currentX = 0;
+  };
+
+  card.addEventListener('mousedown', onStart);
+  card.addEventListener('mousemove', onMove);
+  card.addEventListener('mouseup', onEnd);
+  card.addEventListener('mouseleave', onEnd);
+  card.addEventListener('touchstart', onStart, { passive: true });
+  card.addEventListener('touchmove', onMove, { passive: true });
+  card.addEventListener('touchend', onEnd);
+}
+
+// ===================== INTERACTIONS =====================
+function toggleHeart(btn, e) {
+  e.stopPropagation();
+  btn.classList.toggle('bg-coral');
+  btn.classList.toggle('text-white');
+  btn.style.animation = 'jelly 0.4s ease';
+  setTimeout(() => btn.style.animation = '', 400);
+  
+  const icon = btn.querySelector('[data-lucide]');
+  if (btn.classList.contains('bg-coral')) {
+    btn.innerHTML = '<i data-lucide="heart" class="w-5 h-5" fill="currentColor"></i> saved!';
+  } else {
+    btn.innerHTML = '<i data-lucide="heart" class="w-5 h-5"></i> save';
+  }
+  lucide.createIcons();
+}
+
+function toggleBell(btn, e) {
+  e.stopPropagation();
+  btn.classList.toggle('bg-lavender');
+  btn.classList.toggle('text-white');
+  btn.style.animation = 'jelly 0.4s ease';
+  setTimeout(() => btn.style.animation = '', 400);
+  
+  if (btn.classList.contains('bg-lavender')) {
+    btn.innerHTML = '<i data-lucide="bell-ring" class="w-5 h-5"></i> on!';
+  } else {
+    btn.innerHTML = '<i data-lucide="bell" class="w-5 h-5"></i> alert me';
+  }
+  lucide.createIcons();
+}
+
+// ===================== MAP TOOLTIP (v3) =====================
+function v3ShowTooltip(name, desc) {
+  const t = document.getElementById('v3-map-tooltip');
+  document.getElementById('v3-tooltip-name').textContent = name;
+  document.getElementById('v3-tooltip-desc').textContent = desc;
+  t.classList.remove('hidden');
+}
+function v3HideTooltip() { document.getElementById('v3-map-tooltip').classList.add('hidden'); }
+function v3UpdateTooltip(e) {
+  const t = document.getElementById('v3-map-tooltip');
+  if (t && !t.classList.contains('hidden')) {
+    const map = document.getElementById('v3-map');
+    const rect = map.getBoundingClientRect();
+    t.style.left = (e.clientX - rect.left + 15) + 'px';
+    t.style.top = (e.clientY - rect.top + 15) + 'px';
+  }
+}
+
+// ===================== INIT =====================
+document.addEventListener('DOMContentLoaded', () => {
+  lucide.createIcons();
+});
+</script>
+</body>
+</html>

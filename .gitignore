@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Next.js build
+.next/
+out/
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# School files (not part of the project)
+SCHOOL/
+
+# Temp files
+~$*
+*.tmp
+
+# Python cache
+__pycache__/
+*.pyc

@@ -1,0 +1,1470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SMART_LEASE v2.0.26 // NEON CYBERPUNK TERMINAL</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Oxanium:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body {
+    background: #0a0a0a;
+    font-family: 'JetBrains Mono', monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+
+  /* PHONE FRAME */
+  .phone-frame {
+    width: 430px;
+    height: 932px;
+    background: #000;
+    border-radius: 48px;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid #1a1a1a;
+    box-shadow:
+      0 0 30px rgba(0, 255, 229, 0.15),
+      0 0 60px rgba(0, 255, 229, 0.05),
+      inset 0 0 80px rgba(0, 0, 0, 0.8);
+  }
+
+  /* CRT curvature */
+  .phone-frame::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 48px;
+    background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.4) 100%);
+    z-index: 100;
+    pointer-events: none;
+  }
+
+  /* Scanline overlay */
+  .scanlines {
+    position: absolute;
+    inset: 0;
+    z-index: 99;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 255, 229, 0.015) 2px,
+      rgba(0, 255, 229, 0.015) 4px
+    );
+    animation: scanlineScroll 8s linear infinite;
+  }
+
+  @keyframes scanlineScroll {
+    0% { background-position: 0 0; }
+    100% { background-position: 0 200px; }
+  }
+
+  /* Scanline flicker */
+  .scanline-bar {
+    position: absolute;
+    width: 100%;
+    height: 3px;
+    background: rgba(0, 255, 229, 0.06);
+    z-index: 98;
+    pointer-events: none;
+    animation: scanBar 4s linear infinite;
+  }
+
+  @keyframes scanBar {
+    0% { top: -3px; }
+    100% { top: 100%; }
+  }
+
+  .screen-content {
+    position: absolute;
+    inset: 0;
+    padding: 50px 20px 20px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: #00FFE5 #111;
+  }
+
+  .screen-content::-webkit-scrollbar { width: 4px; }
+  .screen-content::-webkit-scrollbar-track { background: #111; }
+  .screen-content::-webkit-scrollbar-thumb { background: #00FFE5; border-radius: 2px; }
+
+  /* NOTCH */
+  .notch {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 160px;
+    height: 34px;
+    background: #000;
+    border-radius: 0 0 20px 20px;
+    z-index: 200;
+  }
+
+  /* NEON COLORS */
+  :root {
+    --cyan: #00FFE5;
+    --magenta: #FF00FF;
+    --green: #00FF41;
+    --red: #FF3333;
+    --dark: #111111;
+    --black: #000000;
+  }
+
+  .text-cyan { color: var(--cyan); }
+  .text-magenta { color: var(--magenta); }
+  .text-green { color: var(--green); }
+  .text-red { color: var(--red); }
+  .bg-dark { background: var(--dark); }
+
+  .neon-cyan { text-shadow: 0 0 7px var(--cyan), 0 0 20px rgba(0,255,229,0.3); }
+  .neon-magenta { text-shadow: 0 0 7px var(--magenta), 0 0 20px rgba(255,0,255,0.3); }
+  .neon-green { text-shadow: 0 0 7px var(--green), 0 0 20px rgba(0,255,65,0.3); }
+
+  .glow-cyan { box-shadow: 0 0 8px rgba(0,255,229,0.4), inset 0 0 8px rgba(0,255,229,0.1); }
+  .glow-magenta { box-shadow: 0 0 8px rgba(255,0,255,0.4), inset 0 0 8px rgba(255,0,255,0.1); }
+  .glow-green { box-shadow: 0 0 8px rgba(0,255,65,0.4), inset 0 0 8px rgba(0,255,65,0.1); }
+
+  .font-oxa { font-family: 'Oxanium', sans-serif; }
+
+  /* BLINK CURSOR */
+  .blink-cursor::after {
+    content: '█';
+    animation: blink 0.7s step-end infinite;
+    color: var(--cyan);
+  }
+  @keyframes blink {
+    50% { opacity: 0; }
+  }
+
+  /* GLITCH TRANSITION */
+  .glitch-out {
+    animation: glitchOut 0.5s ease-in forwards;
+  }
+  @keyframes glitchOut {
+    0% { transform: translate(0); filter: none; opacity: 1; }
+    20% { transform: translate(-5px, 2px) skewX(3deg); filter: hue-rotate(90deg); }
+    40% { transform: translate(3px, -3px) skewX(-2deg); filter: hue-rotate(180deg) saturate(2); }
+    60% { transform: translate(-2px, 1px) skewX(1deg); filter: hue-rotate(270deg); opacity: 0.7; }
+    80% { transform: translate(4px, -1px) skewX(-3deg); filter: hue-rotate(360deg) brightness(2); opacity: 0.3; }
+    100% { transform: translate(0) skewX(0); filter: brightness(0); opacity: 0; }
+  }
+
+  .glitch-in {
+    animation: glitchIn 0.5s ease-out forwards;
+  }
+  @keyframes glitchIn {
+    0% { transform: translate(0); filter: brightness(0); opacity: 0; }
+    20% { transform: translate(4px, -1px) skewX(-3deg); filter: hue-rotate(360deg) brightness(2); opacity: 0.3; }
+    40% { transform: translate(-2px, 1px) skewX(1deg); filter: hue-rotate(270deg); opacity: 0.7; }
+    60% { transform: translate(3px, -3px) skewX(-2deg); filter: hue-rotate(180deg) saturate(2); }
+    80% { transform: translate(-5px, 2px) skewX(3deg); filter: hue-rotate(90deg); }
+    100% { transform: translate(0); filter: none; opacity: 1; }
+  }
+
+  /* NEON PULSE */
+  @keyframes neonPulse {
+    0%, 100% { opacity: 1; text-shadow: 0 0 7px var(--cyan), 0 0 20px rgba(0,255,229,0.3); }
+    50% { opacity: 0.8; text-shadow: 0 0 4px var(--cyan), 0 0 10px rgba(0,255,229,0.15); }
+  }
+  .neon-pulse { animation: neonPulse 2s ease-in-out infinite; }
+
+  /* FLICKER */
+  @keyframes flicker {
+    0%, 19.999%, 22%, 62.999%, 64%, 64.999%, 70%, 100% { opacity: 1; }
+    20%, 21.999%, 63%, 63.999%, 65%, 69.999% { opacity: 0.4; }
+  }
+  .flicker { animation: flicker 3s linear infinite; }
+
+  /* TERMINAL INPUT */
+  .terminal-input {
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #333;
+    color: var(--cyan);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    outline: none;
+    width: 100%;
+    padding: 6px 0;
+    caret-color: var(--cyan);
+    transition: border-color 0.3s;
+  }
+  .terminal-input:focus {
+    border-bottom-color: var(--cyan);
+    box-shadow: 0 1px 0 0 rgba(0,255,229,0.3);
+  }
+  .terminal-input::placeholder { color: #333; }
+
+  /* TERMINAL BUTTON */
+  .term-btn {
+    background: transparent;
+    border: 1px solid #333;
+    color: #666;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .term-btn:hover {
+    border-color: var(--cyan);
+    color: var(--cyan);
+    box-shadow: 0 0 10px rgba(0,255,229,0.2);
+  }
+  .term-btn.active, .term-btn.selected {
+    border-color: var(--cyan);
+    color: var(--cyan);
+    background: rgba(0,255,229,0.08);
+    box-shadow: 0 0 12px rgba(0,255,229,0.3), inset 0 0 12px rgba(0,255,229,0.05);
+  }
+  .term-btn.active-green {
+    border-color: var(--green);
+    color: var(--green);
+    background: rgba(0,255,65,0.08);
+    box-shadow: 0 0 12px rgba(0,255,65,0.3), inset 0 0 12px rgba(0,255,65,0.05);
+  }
+
+  /* EXECUTE BUTTON */
+  .execute-btn {
+    background: transparent;
+    border: 2px solid var(--cyan);
+    color: var(--cyan);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 14px 32px;
+    cursor: pointer;
+    letter-spacing: 2px;
+    transition: all 0.3s;
+    text-shadow: 0 0 7px var(--cyan);
+    box-shadow: 0 0 15px rgba(0,255,229,0.2);
+    width: 100%;
+  }
+  .execute-btn:hover {
+    background: rgba(0,255,229,0.1);
+    box-shadow: 0 0 30px rgba(0,255,229,0.4), inset 0 0 20px rgba(0,255,229,0.1);
+  }
+
+  /* DOSSIER CARD */
+  .dossier {
+    border: 1px solid #222;
+    background: rgba(17,17,17,0.8);
+    position: relative;
+    overflow: hidden;
+  }
+  .dossier::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+  }
+
+  /* IMAGE OVERLAY */
+  .img-overlay {
+    position: relative;
+    overflow: hidden;
+  }
+  .img-overlay::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(0,255,229,0.05) 0%, transparent 50%, rgba(0,0,0,0.6) 100%),
+      repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,229,0.02) 2px, rgba(0,255,229,0.02) 4px);
+    pointer-events: none;
+  }
+
+  /* RANGE SLIDER */
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    background: #222;
+    outline: none;
+    border-radius: 0;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: var(--cyan);
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 0 10px var(--cyan);
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    background: var(--cyan);
+    cursor: pointer;
+    border: none;
+    border-radius: 0;
+    box-shadow: 0 0 10px var(--cyan);
+  }
+
+  /* BOTTOM NAV */
+  .bottom-nav {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,0.95);
+    border-top: 1px solid #1a1a1a;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 8px 0 24px;
+    z-index: 50;
+  }
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    color: #444;
+    font-size: 9px;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+    padding: 4px 8px;
+    position: relative;
+  }
+  .nav-item:hover, .nav-item.active {
+    color: var(--cyan);
+  }
+  .nav-item.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 2px;
+    background: var(--cyan);
+    box-shadow: 0 0 8px var(--cyan);
+  }
+  .nav-item svg { width: 20px; height: 20px; }
+
+  /* SCREEN VISIBILITY */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* PROGRESS BAR */
+  .progress-track {
+    background: #1a1a1a;
+    height: 6px;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--cyan);
+    box-shadow: 0 0 10px var(--cyan);
+    transition: width 0.5s ease;
+  }
+
+  /* TOGGLE SWITCH */
+  .toggle-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid #1a1a1a;
+  }
+  .toggle-switch {
+    cursor: pointer;
+    font-size: 11px;
+    padding: 3px 10px;
+    border: 1px solid #333;
+    color: #444;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .toggle-switch.on {
+    border-color: var(--green);
+    color: var(--green);
+    background: rgba(0,255,65,0.08);
+    box-shadow: 0 0 8px rgba(0,255,65,0.2);
+  }
+
+  /* PRIORITY ITEM */
+  .priority-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid #222;
+    background: rgba(17,17,17,0.6);
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .priority-item:hover {
+    border-color: #444;
+  }
+  .priority-num {
+    color: var(--magenta);
+    font-family: 'Oxanium', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    width: 28px;
+    text-align: center;
+    text-shadow: 0 0 7px var(--magenta);
+  }
+
+  /* STAR RATING */
+  .star { color: #333; }
+  .star.filled { color: var(--cyan); text-shadow: 0 0 5px var(--cyan); }
+
+  /* STATUS BAR */
+  .status-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50px;
+    background: linear-gradient(180deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0.8) 80%, transparent 100%);
+    z-index: 150;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 28px 0;
+    font-size: 11px;
+    color: #666;
+  }
+
+  /* TYPING EFFECT HELPER */
+  .typed-line { overflow: hidden; white-space: nowrap; }
+
+  /* ASCII SPINNER */
+  @keyframes spin-char {
+    0% { content: '|'; }
+    25% { content: '/'; }
+    50% { content: '-'; }
+    75% { content: '\\'; }
+  }
+
+  .hidden { display: none !important; }
+
+  /* Subtle screen noise */
+  .noise {
+    position: absolute;
+    inset: 0;
+    z-index: 97;
+    pointer-events: none;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  }
+
+  /* Alert toggle */
+  .alert-toggle {
+    font-size: 10px;
+    padding: 4px 10px;
+    border: 1px solid #333;
+    color: #444;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .alert-toggle.on {
+    border-color: var(--magenta);
+    color: var(--magenta);
+    background: rgba(255,0,255,0.08);
+    box-shadow: 0 0 8px rgba(255,0,255,0.2);
+  }
+</style>
+</head>
+<body>
+
+<!-- PHONE FRAME -->
+<div class="phone-frame" id="phoneFrame">
+  <!-- Scanlines -->
+  <div class="scanlines"></div>
+  <div class="scanline-bar"></div>
+  <div class="noise"></div>
+
+  <!-- Notch -->
+  <div class="notch"></div>
+
+  <!-- Status Bar -->
+  <div class="status-bar" id="statusBar" style="display:none;">
+    <span class="text-cyan neon-cyan" style="font-size:10px;">SL://v2.0</span>
+    <span style="color:#333;">████ 87%</span>
+  </div>
+
+  <!-- ===================== SCREEN 1: BOOT SEQUENCE ===================== -->
+  <div class="screen active" id="screen-boot">
+    <div class="screen-content" style="display:flex; flex-direction:column; justify-content:center; padding-top:0;">
+      <div id="bootText" style="min-height: 300px; padding-top: 180px;">
+        <!-- Lines typed here by JS -->
+      </div>
+      <div id="bootEnter" class="hidden" style="text-align:center; margin-top:40px;">
+        <button onclick="bootToRegister()" class="execute-btn neon-pulse" style="font-size:13px; padding:12px 24px; width: auto; display: inline-block;">
+          [ ENTER ]
+        </button>
+        <div style="color:#333; font-size:10px; margin-top:12px;">PRESS TO ACCESS SYSTEM</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SCREEN 2: REGISTRATION ===================== -->
+  <div class="screen" id="screen-register">
+    <div class="screen-content" style="padding-top:60px; padding-bottom: 40px;">
+      <div style="margin-bottom:6px; color:#333; font-size:10px;">SYS://USER_AUTH</div>
+      <h1 class="font-oxa text-cyan neon-cyan" style="font-size:18px; font-weight:700; margin-bottom:4px;">&gt; NEW_USER_REGISTRATION</h1>
+      <div style="color:#333; font-size:10px; margin-bottom:28px;">ENTER CREDENTIALS TO ACCESS HOUSING DATABASE</div>
+
+      <div id="regForm">
+        <!-- FIRST_NAME -->
+        <div style="margin-bottom:20px;">
+          <label style="color:#444; font-size:10px; letter-spacing:1px;">FIRST_NAME</label>
+          <div style="display:flex; align-items:center; gap:6px; margin-top:4px;">
+            <span class="text-cyan" style="font-size:13px;">&gt;</span>
+            <input type="text" class="terminal-input" id="regFirst" placeholder="enter_first_name" autocomplete="off">
+          </div>
+          <div class="text-red hidden" id="errFirst" style="font-size:10px; margin-top:4px;">! ERROR: FIELD_REQUIRED</div>
+        </div>
+
+        <!-- LAST_NAME -->
+        <div style="margin-bottom:20px;">
+          <label style="color:#444; font-size:10px; letter-spacing:1px;">LAST_NAME</label>
+          <div style="display:flex; align-items:center; gap:6px; margin-top:4px;">
+            <span class="text-cyan" style="font-size:13px;">&gt;</span>
+            <input type="text" class="terminal-input" id="regLast" placeholder="enter_last_name" autocomplete="off">
+          </div>
+          <div class="text-red hidden" id="errLast" style="font-size:10px; margin-top:4px;">! ERROR: FIELD_REQUIRED</div>
+        </div>
+
+        <!-- EMAIL -->
+        <div style="margin-bottom:20px;">
+          <label style="color:#444; font-size:10px; letter-spacing:1px;">EMAIL</label>
+          <div style="display:flex; align-items:center; gap:6px; margin-top:4px;">
+            <span class="text-cyan" style="font-size:13px;">&gt;</span>
+            <input type="email" class="terminal-input" id="regEmail" placeholder="user@vols.utk.edu" autocomplete="off">
+          </div>
+          <div class="text-red hidden" id="errEmail" style="font-size:10px; margin-top:4px;">! ERROR: VALID_EMAIL_REQUIRED</div>
+        </div>
+
+        <!-- PHONE -->
+        <div style="margin-bottom:20px;">
+          <label style="color:#444; font-size:10px; letter-spacing:1px;">PHONE</label>
+          <div style="display:flex; align-items:center; gap:6px; margin-top:4px;">
+            <span class="text-cyan" style="font-size:13px;">&gt;</span>
+            <input type="tel" class="terminal-input" id="regPhone" placeholder="(865) 555-0000" autocomplete="off">
+          </div>
+          <div class="text-red hidden" id="errPhone" style="font-size:10px; margin-top:4px;">! ERROR: FIELD_REQUIRED</div>
+        </div>
+
+        <div style="margin-top:30px;">
+          <button onclick="submitRegistration()" class="execute-btn" style="font-size:12px;">[ REGISTER ]</button>
+        </div>
+
+        <div style="color:#222; font-size:9px; text-align:center; margin-top:16px;">
+          ENCRYPTED // AES-256 // SECURE_CHANNEL
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SCREEN 3: SEARCH PARAMETERS (QUIZ) ===================== -->
+  <div class="screen" id="screen-quiz">
+    <div class="screen-content" style="padding-top:60px; padding-bottom:100px;">
+      <div style="margin-bottom:6px; color:#333; font-size:10px;">SYS://SEARCH_ENGINE</div>
+      <h1 class="font-oxa text-cyan neon-cyan" style="font-size:16px; font-weight:700; margin-bottom:4px;">&gt; CONFIGURE_SEARCH_PARAMETERS</h1>
+      <div style="color:#333; font-size:10px; margin-bottom:20px;">SET FILTERS TO QUERY HOUSING DATABASE</div>
+
+      <!-- PROGRESS BAR -->
+      <div style="margin-bottom:24px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+          <span style="color:#444; font-size:10px;">PROGRESS</span>
+          <span class="text-cyan" style="font-size:10px;" id="progressPct">0%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progressBar" style="width:0%"></div>
+        </div>
+      </div>
+
+      <!-- PARAM 1: BEDROOMS -->
+      <div style="margin-bottom:28px;">
+        <div style="color:#444; font-size:10px; letter-spacing:1px; margin-bottom:8px;">PARAM_01</div>
+        <div class="text-cyan" style="font-size:12px; margin-bottom:10px;">&gt; SET bedrooms=<span id="bedroomVal" class="text-magenta neon-magenta">_</span></div>
+        <div style="display:flex; gap:6px; flex-wrap:wrap;" id="bedroomBtns">
+          <button class="term-btn" data-val="studio" onclick="selectBedroom(this)">STUDIO</button>
+          <button class="term-btn" data-val="1" onclick="selectBedroom(this)">1</button>
+          <button class="term-btn" data-val="2" onclick="selectBedroom(this)">2</button>
+          <button class="term-btn" data-val="3" onclick="selectBedroom(this)">3</button>
+          <button class="term-btn" data-val="4+" onclick="selectBedroom(this)">4+</button>
+        </div>
+      </div>
+
+      <!-- PARAM 2: BUDGET -->
+      <div style="margin-bottom:28px;">
+        <div style="color:#444; font-size:10px; letter-spacing:1px; margin-bottom:8px;">PARAM_02</div>
+        <div class="text-cyan" style="font-size:12px; margin-bottom:6px;">&gt; SET budget_max=</div>
+        <div class="font-oxa text-cyan neon-cyan" style="font-size:36px; font-weight:800; text-align:center; margin:10px 0;">
+          $<span id="budgetVal">1200</span>
+        </div>
+        <input type="range" min="400" max="2500" value="1200" step="50" id="budgetSlider" oninput="updateBudget(this.value)">
+        <div style="display:flex; justify-content:space-between; margin-top:4px;">
+          <span style="color:#333; font-size:9px;">$400</span>
+          <span style="color:#333; font-size:9px;">$2,500</span>
+        </div>
+      </div>
+
+      <!-- PARAM 3: AMENITIES -->
+      <div style="margin-bottom:28px;">
+        <div style="color:#444; font-size:10px; letter-spacing:1px; margin-bottom:8px;">PARAM_03</div>
+        <div class="text-cyan" style="font-size:12px; margin-bottom:10px;">&gt; SELECT amenities[]=</div>
+        <div id="amenityToggles">
+          <div class="toggle-container">
+            <span style="color:#888; font-size:11px;">POOL</span>
+            <span class="toggle-switch" data-amenity="pool" onclick="toggleAmenity(this)">[OFF]</span>
+          </div>
+          <div class="toggle-container">
+            <span style="color:#888; font-size:11px;">GYM</span>
+            <span class="toggle-switch" data-amenity="gym" onclick="toggleAmenity(this)">[OFF]</span>
+          </div>
+          <div class="toggle-container">
+            <span style="color:#888; font-size:11px;">STUDY_RM</span>
+            <span class="toggle-switch" data-amenity="study" onclick="toggleAmenity(this)">[OFF]</span>
+          </div>
+          <div class="toggle-container">
+            <span style="color:#888; font-size:11px;">LAUNDRY</span>
+            <span class="toggle-switch" data-amenity="laundry" onclick="toggleAmenity(this)">[OFF]</span>
+          </div>
+          <div class="toggle-container">
+            <span style="color:#888; font-size:11px;">PARKING</span>
+            <span class="toggle-switch" data-amenity="parking" onclick="toggleAmenity(this)">[OFF]</span>
+          </div>
+          <div class="toggle-container">
+            <span style="color:#888; font-size:11px;">PET_OK</span>
+            <span class="toggle-switch" data-amenity="pet" onclick="toggleAmenity(this)">[OFF]</span>
+          </div>
+          <div class="toggle-container">
+            <span style="color:#888; font-size:11px;">FURNISHED</span>
+            <span class="toggle-switch" data-amenity="furnished" onclick="toggleAmenity(this)">[OFF]</span>
+          </div>
+          <div class="toggle-container">
+            <span style="color:#888; font-size:11px;">GAME_RM</span>
+            <span class="toggle-switch" data-amenity="game" onclick="toggleAmenity(this)">[OFF]</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- PARAM 4: DISTANCE -->
+      <div style="margin-bottom:28px;">
+        <div style="color:#444; font-size:10px; letter-spacing:1px; margin-bottom:8px;">PARAM_04</div>
+        <div class="text-cyan" style="font-size:12px; margin-bottom:10px;">&gt; SET max_distance=<span id="distVal" class="text-magenta neon-magenta">_</span></div>
+        <div style="display:flex; gap:6px;" id="distBtns">
+          <button class="term-btn" style="flex:1;" data-val="walking" onclick="selectDist(this)">WALKING</button>
+          <button class="term-btn" style="flex:1;" data-val="short_drive" onclick="selectDist(this)">SHORT_DRIVE</button>
+          <button class="term-btn" style="flex:1;" data-val="any" onclick="selectDist(this)">ANY</button>
+        </div>
+      </div>
+
+      <!-- PARAM 5: PRIORITY -->
+      <div style="margin-bottom:32px;">
+        <div style="color:#444; font-size:10px; letter-spacing:1px; margin-bottom:8px;">PARAM_05</div>
+        <div class="text-cyan" style="font-size:12px; margin-bottom:10px;">&gt; SET priority_order=</div>
+        <div style="color:#333; font-size:9px; margin-bottom:8px;">TAP TO CYCLE RANK POSITION</div>
+        <div id="priorityList" style="display:flex; flex-direction:column; gap:6px;">
+          <div class="priority-item" data-priority="price" onclick="cyclePriority(this)">
+            <span class="priority-num">1</span>
+            <span style="color:#888; font-size:12px;">PRICE</span>
+          </div>
+          <div class="priority-item" data-priority="amenities" onclick="cyclePriority(this)">
+            <span class="priority-num">2</span>
+            <span style="color:#888; font-size:12px;">AMENITIES</span>
+          </div>
+          <div class="priority-item" data-priority="location" onclick="cyclePriority(this)">
+            <span class="priority-num">3</span>
+            <span style="color:#888; font-size:12px;">LOCATION</span>
+          </div>
+          <div class="priority-item" data-priority="reviews" onclick="cyclePriority(this)">
+            <span class="priority-num">4</span>
+            <span style="color:#888; font-size:12px;">REVIEWS</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- EXECUTE -->
+      <button onclick="executeSearch()" class="execute-btn" id="executeBtn">[ EXECUTE SEARCH ]</button>
+    </div>
+  </div>
+
+  <!-- ===================== SCREEN 4: RESULTS ===================== -->
+  <div class="screen" id="screen-results">
+    <div class="screen-content" style="padding-top:60px; padding-bottom:100px;">
+      <!-- Processing overlay -->
+      <div id="processingOverlay" style="text-align:center; padding-top:200px;">
+        <div class="text-cyan neon-cyan font-oxa" style="font-size:18px; margin-bottom:16px;">PROCESSING...</div>
+        <div class="text-cyan" style="font-size:24px;" id="spinner">|</div>
+        <div style="color:#333; font-size:10px; margin-top:16px;">QUERYING KNOXVILLE HOUSING DATABASE</div>
+      </div>
+
+      <!-- Results content (hidden initially) - populated dynamically by renderV2Results() -->
+      <div id="resultsContent" class="hidden">
+        <div style="margin-bottom:6px; color:#333; font-size:10px;">SYS://RESULTS</div>
+        <h1 class="font-oxa text-cyan neon-cyan" style="font-size:15px; font-weight:700; margin-bottom:4px;" id="v2-results-header">&gt; SEARCH_COMPLETE</h1>
+        <div style="color:#333; font-size:10px; margin-bottom:20px;">CLASSIFIED HOUSING DOSSIERS // KNOXVILLE SECTOR</div>
+        <div id="v2-results-container"></div>
+        <!-- Dossiers injected by renderV2Results() -->
+      </div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <div class="bottom-nav" id="bottomNav">
+      <div class="nav-item active" onclick="switchTab(this, 'home')"><i data-lucide="terminal" style="width:18px;height:18px;"></i><span>HOME</span></div>
+      <div class="nav-item" onclick="switchTab(this, 'sublease')"><i data-lucide="calendar" style="width:18px;height:18px;"></i><span>SUBLEASE</span></div>
+      <div class="nav-item" onclick="switchTab(this, 'rmmate')"><i data-lucide="users" style="width:18px;height:18px;"></i><span>RMMATE</span></div>
+      <div class="nav-item" onclick="switchTab(this, 'map')"><i data-lucide="map-pin" style="width:18px;height:18px;"></i><span>MAP</span></div>
+      <div class="nav-item" onclick="switchTab(this, 'assist')"><i data-lucide="shield" style="width:18px;height:18px;"></i><span>ASSIST</span></div>
+      <div class="nav-item" onclick="switchTab(this, 'review')"><i data-lucide="star" style="width:18px;height:18px;"></i><span>REVIEW</span></div>
+    </div>
+  </div>
+
+  <!-- ===================== SUBLEASE (Forum) ===================== -->
+  <div class="screen" id="screen-sublease">
+    <div class="screen-content" style="padding-top:60px; padding-bottom:100px;">
+      <div style="margin-bottom:6px; color:#333; font-size:10px;">SYS://SUBLEASE_FORUM</div>
+      <h1 class="font-oxa text-cyan neon-cyan" style="font-size:16px; font-weight:700; margin-bottom:8px;">&gt; SUBLEASE_LISTINGS</h1>
+      <div style="color:#333; font-size:10px; margin-bottom:16px;">FIND OR POST SUBLEASES. REAL STUDENTS.</div>
+      <div style="display:flex; gap:6px; margin-bottom:20px;">
+        <button class="term-btn active-green" style="flex:1;">[ + NEW POST ]</button>
+        <button class="term-btn"><i data-lucide="search" style="width:14px;height:14px;display:inline;"></i></button>
+      </div>
+      <div class="dossier" style="padding:14px; margin-bottom:10px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+          <span class="text-cyan" style="font-size:11px;">1BR_at_The_Knox — $900/mo</span>
+          <span class="text-green" style="font-size:10px;">-$149</span>
+        </div>
+        <div style="color:#444; font-size:10px;">Dec 2025 - Jul 2026 · Posted 2 days ago</div>
+      </div>
+      <div class="dossier" style="padding:14px; margin-bottom:10px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+          <span class="text-cyan" style="font-size:11px;">2BR_at_Vol_Hall — $650/ea</span>
+          <span class="text-magenta" style="font-size:10px;">HOT</span>
+        </div>
+        <div style="color:#444; font-size:10px;">Jan - May 2026 · Need 1 roommate</div>
+      </div>
+      <div class="dossier" style="padding:14px;">
+        <div class="text-cyan" style="font-size:11px;">Studio sublet — University Village</div>
+        <div style="color:#444; font-size:10px;">Immediate · Furnished</div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <div class="nav-item" onclick="switchTab(this, 'home')"><i data-lucide="terminal" style="width:18px;height:18px;"></i><span>HOME</span></div>
+      <div class="nav-item active" onclick="switchTab(this, 'sublease')"><i data-lucide="calendar" style="width:18px;height:18px;"></i><span>SUBLEASE</span></div>
+      <div class="nav-item" onclick="switchTab(this, 'rmmate')"><i data-lucide="users" style="width:18px;height:18px;"></i><span>RMMATE</span></div>
+      <div class="nav-item" onclick="switchTab(this, 'map')"><i data-lucide="map-pin" style="width:18px;height:18px;"></i><span>MAP</span></div>
+      <div class="nav-item" onclick="switchTab(this, 'assist')"><i data-lucide="shield" style="width:18px;height:18px;"></i><span>ASSIST</span></div>
+      <div class="nav-item" onclick="switchTab(this, 'review')"><i data-lucide="star" style="width:18px;height:18px;"></i><span>REVIEW</span></div>
+    </div>
+  </div>
+
+  <!-- ===================== ROOMMATES (Tinder-style) ===================== -->
+  <div class="screen" id="screen-rmmate">
+    <div class="screen-content" style="padding-top:60px; padding-bottom:100px;">
+      <div style="margin-bottom:6px; color:#333; font-size:10px;">SYS://ROOMMATE_MATCH</div>
+      <h1 class="font-oxa text-cyan neon-cyan" style="font-size:16px; font-weight:700; margin-bottom:8px;">&gt; SWIPE TO MATCH</h1>
+      <div style="color:#333; font-size:10px; margin-bottom:16px;">Early bird · Clean freak · Night owl — we've got you.</div>
+      <div class="img-overlay dossier" style="height:320px; margin-bottom:20px; padding:0; overflow:hidden;">
+        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400" alt="Roommate" style="width:100%; height:100%; object-fit:cover; object-position:top;">
+        <div style="position:absolute; bottom:0; left:0; right:0; padding:20px;">
+          <div class="text-cyan font-oxa" style="font-size:18px;">Marcus, 22</div>
+          <div style="color:#888; font-size:11px;">CS Major · Early bird · Clean · No pets</div>
+        </div>
+      </div>
+      <div style="display:flex; justify-content:center; gap:20px;">
+        <button class="term-btn" style="width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:20px;">✕</button>
+        <button class="term-btn active-green" style="width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:24px;">♥</button>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <div class="nav-item" onclick="switchTab(this, 'home')"><i data-lucide="terminal" style="width:18px;height:18px;"></i><span>HOME</span></div>
+      <div class="nav-item" onclick="switchTab(this, 'sublease')"><i data-lucide="calendar" style="width:18px;height:18px;"></i><span>SUBLEASE</span></div>
+      <div class="nav-item active" onclick="switchTab(this, 'rmmate')"><i data-lucide="users" style="width:18px;height:18px;"></i><span>RMMATE</span></div>
+      <div class="nav-item" onclick="switchTab(this, 'map')"><i data-lucide="map-pin" style="width:18px;height:18px;"></i><span>MAP</span></div>
+      <div class="nav-item" onclick="switchTab(this, 'assist')"><i data-lucide="shield" style="width:18px;height:18px;"></i><span>ASSIST</span></div>
+      <div class="nav-item" onclick="switchTab(this, 'review')"><i data-lucide="star" style="width:18px;height:18px;"></i><span>REVIEW</span></div>
+    </div>
+  </div>
+
+  <!-- ===================== MAP ===================== -->
+  <div class="screen" id="screen-map">
+    <div class="screen-content" style="padding-top:60px; padding-bottom:100px;">
+      <div style="margin-bottom:6px; color:#333; font-size:10px;">SYS://MAP_VIEW</div>
+      <h1 class="font-oxa text-cyan neon-cyan" style="font-size:16px; font-weight:700; margin-bottom:8px;">&gt; HOVER PINS FOR SUMMARIES</h1>
+      <div style="color:#333; font-size:10px; margin-bottom:16px;">All apartments in area.</div>
+      <div class="dossier" style="height:350px; position:relative; padding:0; overflow:hidden;">
+        <svg viewBox="0 0 300 300" style="width:100%; height:100%;" xmlns="http://www.w3.org/2000/svg">
+          <rect width="100%" height="100%" fill="#0a0a0a"/>
+          <circle cx="150" cy="80" r="14" fill="var(--cyan)" style="cursor:pointer;" onmouseenter="v2ShowMapTooltip(event,'The Knox','$1,049/mo · 0.3 mi · Pool, Gym')" onmouseleave="v2HideMapTooltip()"/>
+          <circle cx="120" cy="130" r="14" fill="var(--cyan)" style="cursor:pointer;" onmouseenter="v2ShowMapTooltip(event,'University Village','$879/mo · 0.8 mi · Parking, Gym')" onmouseleave="v2HideMapTooltip()"/>
+          <circle cx="180" cy="150" r="14" fill="var(--cyan)" style="cursor:pointer;" onmouseenter="v2ShowMapTooltip(event,'Vol Hall','$749/mo · 1.2 mi · Pet Friendly')" onmouseleave="v2HideMapTooltip()"/>
+          <text x="150" y="200" text-anchor="middle" fill="#222" font-size="10">UT_CAMPUS</text>
+        </svg>
+        <div id="v2-map-tooltip" style="position:fixed; background:#111; border:1px solid var(--cyan); padding:12px 16px; font-size:11px; display:none; max-width:200px; z-index:9999; pointer-events:none; box-shadow:0 0 15px rgba(0,255,229,0.2);">
+          <div class="text-cyan" id="v2-tooltip-name"></div>
+          <div style="color:#888; margin-top:4px;" id="v2-tooltip-desc"></div>
+        </div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <div class="nav-item" onclick="switchTab(this, 'home')"><i data-lucide="terminal" style="width:18px;height:18px;"></i><span>HOME</span></div>
+      <div class="nav-item" onclick="switchTab(this, 'sublease')"><i data-lucide="calendar" style="width:18px;height:18px;"></i><span>SUBLEASE</span></div>
+      <div class="nav-item" onclick="switchTab(this, 'rmmate')"><i data-lucide="users" style="width:18px;height:18px;"></i><span>RMMATE</span></div>
+      <div class="nav-item active" onclick="switchTab(this, 'map')"><i data-lucide="map-pin" style="width:18px;height:18px;"></i><span>MAP</span></div>
+      <div class="nav-item" onclick="switchTab(this, 'assist')"><i data-lucide="shield" style="width:18px;height:18px;"></i><span>ASSIST</span></div>
+      <div class="nav-item" onclick="switchTab(this, 'review')"><i data-lucide="star" style="width:18px;height:18px;"></i><span>REVIEW</span></div>
+    </div>
+  </div>
+
+  <!-- ===================== LEASE ASSISTANCE (TurboTax-style) ===================== -->
+  <div class="screen" id="screen-assist">
+    <div class="screen-content" style="padding-top:60px; padding-bottom:100px;">
+      <div style="margin-bottom:6px; color:#333; font-size:10px;">SYS://LEASE_ASSIST</div>
+      <h1 class="font-oxa text-cyan neon-cyan" style="font-size:16px; font-weight:700; margin-bottom:8px;">&gt; 24/7 LEASE ASSISTANCE</h1>
+      <div style="color:#333; font-size:10px; margin-bottom:20px;">Step-by-step guidance. TurboTax-style.</div>
+      <div class="dossier" style="padding:14px; margin-bottom:10px;">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span class="text-cyan" style="width:28px; height:28px; border:2px solid var(--cyan); display:flex; align-items:center; justify-content:center; font-size:12px;">1</span>
+          <div>
+            <div class="text-cyan" style="font-size:11px;">Read your lease carefully</div>
+            <div style="color:#444; font-size:10px;">Key clauses — deposits, subletting, break fees.</div>
+          </div>
+        </div>
+      </div>
+      <div class="dossier" style="padding:14px; margin-bottom:10px; border-color:var(--cyan);">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span class="text-cyan" style="width:28px; height:28px; border:2px solid var(--cyan); display:flex; align-items:center; justify-content:center; font-size:12px;">2</span>
+          <div>
+            <div class="text-cyan" style="font-size:11px;">Upload or paste your lease</div>
+            <div style="color:#444; font-size:10px;">AI reviews it and explains in plain English.</div>
+          </div>
+        </div>
+      </div>
+      <div class="dossier" style="padding:14px; margin-bottom:20px; opacity:0.7;">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span style="width:28px; height:28px; border:2px solid #333; display:flex; align-items:center; justify-content:center; font-size:12px; color:#444;">3</span>
+          <div>
+            <div style="color:#555; font-size:11px;">Get questions answered</div>
+            <div style="color:#333; font-size:10px;">Chat with leasing expert or FAQ.</div>
+          </div>
+        </div>
+      </div>
+      <button class="execute-btn" style="font-size:12px;">[ START NOW — FREE ]</button>
+    </div>
+    <div class="bottom-nav">
+      <div class="nav-item" onclick="switchTab(this, 'home')"><i data-lucide="terminal" style="width:18px;height:18px;"></i><span>HOME</span></div>
+      <div class="nav-item" onclick="switchTab(this, 'sublease')"><i data-lucide="calendar" style="width:18px;height:18px;"></i><span>SUBLEASE</span></div>
+      <div class="nav-item" onclick="switchTab(this, 'rmmate')"><i data-lucide="users" style="width:18px;height:18px;"></i><span>RMMATE</span></div>
+      <div class="nav-item" onclick="switchTab(this, 'map')"><i data-lucide="map-pin" style="width:18px;height:18px;"></i><span>MAP</span></div>
+      <div class="nav-item active" onclick="switchTab(this, 'assist')"><i data-lucide="shield" style="width:18px;height:18px;"></i><span>ASSIST</span></div>
+      <div class="nav-item" onclick="switchTab(this, 'review')"><i data-lucide="star" style="width:18px;height:18px;"></i><span>REVIEW</span></div>
+    </div>
+  </div>
+
+  <!-- ===================== REVIEWS (Verified) ===================== -->
+  <div class="screen" id="screen-review">
+    <div class="screen-content" style="padding-top:60px; padding-bottom:100px;">
+      <div style="margin-bottom:6px; color:#333; font-size:10px;">SYS://REVIEW_DB</div>
+      <h1 class="font-oxa text-cyan neon-cyan" style="font-size:16px; font-weight:700; margin-bottom:8px;">&gt; VERIFIED_REVIEWS</h1>
+      <div style="color:#333; font-size:10px; margin-bottom:12px;">Only from people who actually lived there. UT email verified ✓</div>
+      <div style="display:flex; gap:6px; margin-bottom:16px;">
+        <span class="term-btn active-green" style="font-size:9px;">✓ VERIFIED</span>
+        <select class="terminal-input" style="padding:6px 10px; font-size:10px; flex:1;">
+          <option>All properties</option>
+          <option>The Knox</option>
+          <option>Vol Hall</option>
+          <option>University Village</option>
+        </select>
+      </div>
+      <div class="dossier" style="padding:14px; margin-bottom:10px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+          <span class="text-cyan" style="font-size:11px;">The Knox</span>
+          <span class="text-green" style="font-size:9px;">Verified · lived 2023-24</span>
+        </div>
+        <div style="color:#555; font-size:10px;">"Best decision I made freshman year. Study rooms saved my GPA."</div>
+        <div style="color:#333; font-size:9px; margin-top:6px;">— Sarah M. · Class of '27</div>
+      </div>
+      <div class="dossier" style="padding:14px; margin-bottom:10px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+          <span class="text-cyan" style="font-size:11px;">University Village</span>
+          <span class="text-green" style="font-size:9px;">Verified · lived 2022-24</span>
+        </div>
+        <div style="color:#555; font-size:10px;">"Furnished units are a game changer. Moved in with just my suitcase."</div>
+        <div style="color:#333; font-size:9px; margin-top:6px;">— James K. · Class of '26</div>
+      </div>
+      <div class="dossier" style="padding:14px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+          <span class="text-cyan" style="font-size:11px;">Vol Hall</span>
+          <span class="text-green" style="font-size:9px;">Verified · lived 2023-24</span>
+        </div>
+        <div style="color:#555; font-size:10px;">"My dog loves it here. Game room always packed on weekends."</div>
+        <div style="color:#333; font-size:9px; margin-top:6px;">— Tyler R. · Class of '28</div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <div class="nav-item" onclick="switchTab(this, 'home')"><i data-lucide="terminal" style="width:18px;height:18px;"></i><span>HOME</span></div>
+      <div class="nav-item" onclick="switchTab(this, 'sublease')"><i data-lucide="calendar" style="width:18px;height:18px;"></i><span>SUBLEASE</span></div>
+      <div class="nav-item" onclick="switchTab(this, 'rmmate')"><i data-lucide="users" style="width:18px;height:18px;"></i><span>RMMATE</span></div>
+      <div class="nav-item" onclick="switchTab(this, 'map')"><i data-lucide="map-pin" style="width:18px;height:18px;"></i><span>MAP</span></div>
+      <div class="nav-item" onclick="switchTab(this, 'assist')"><i data-lucide="shield" style="width:18px;height:18px;"></i><span>ASSIST</span></div>
+      <div class="nav-item active" onclick="switchTab(this, 'review')"><i data-lucide="star" style="width:18px;height:18px;"></i><span>REVIEW</span></div>
+    </div>
+  </div>
+
+  <div class="screen" id="screen-profile" style="display:none;">
+    <div class="screen-content" style="padding-top:60px; padding-bottom:100px;">
+      <div style="margin-bottom:6px; color:#333; font-size:10px;">SYS://USER_PROFILE</div>
+      <h1 class="font-oxa text-cyan neon-cyan" style="font-size:16px; font-weight:700; margin-bottom:16px;">&gt; USER_PROFILE</h1>
+      <div style="border:1px solid #1a1a1a; padding:20px; text-align:center; margin-bottom:16px;">
+        <div style="width:60px; height:60px; border:2px solid var(--cyan); margin:0 auto 12px; display:flex; align-items:center; justify-content:center; box-shadow: 0 0 15px rgba(0,255,229,0.2);">
+          <i data-lucide="user" style="width:30px;height:30px;color:var(--cyan);"></i>
+        </div>
+        <div class="text-cyan" style="font-size:13px;" id="profileName">USER_NULL</div>
+        <div style="color:#333; font-size:10px; margin-top:4px;" id="profileEmail">NO_EMAIL</div>
+      </div>
+      <div style="border:1px solid #1a1a1a; padding:14px;">
+        <div style="color:#444; font-size:10px; margin-bottom:8px;">SESSION_DATA</div>
+        <div style="color:#333; font-size:10px; margin-bottom:4px;">ACCESS_LEVEL: <span class="text-green">STANDARD</span></div>
+        <div style="color:#333; font-size:10px; margin-bottom:4px;">SEARCHES_RUN: <span class="text-cyan">1</span></div>
+        <div style="color:#333; font-size:10px; margin-bottom:4px;">ALERTS_SET: <span class="text-magenta">0</span></div>
+        <div style="color:#333; font-size:10px;">SESSION_ID: <span style="color:#222;">SL-2026-<span id="sessionId">0000</span></span></div>
+      </div>
+      <div style="margin-top:20px;">
+        <button class="term-btn" style="width:100%; color:var(--red); border-color:#331111;" onclick="resetApp()">[ TERMINATE SESSION ]</button>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <div class="nav-item" onclick="switchTab(this, 'home')"><i data-lucide="terminal" style="width:20px;height:20px;"></i><span>HOME</span></div>
+      <div class="nav-item" onclick="switchTab(this, 'rmmate')"><i data-lucide="users" style="width:20px;height:20px;"></i><span>RMMATE</span></div>
+      <div class="nav-item" onclick="switchTab(this, 'review')"><i data-lucide="star" style="width:20px;height:20px;"></i><span>REVIEW</span></div>
+      <div class="nav-item" onclick="switchTab(this, 'alert')"><i data-lucide="bell" style="width:20px;height:20px;"></i><span>ALERT</span></div>
+      <div class="nav-item active" onclick="switchTab(this, 'profile')"><i data-lucide="user" style="width:20px;height:20px;"></i><span>PROFILE</span></div>
+    </div>
+  </div>
+
+</div><!-- end phone-frame -->
+
+<script>
+// ============================================================
+// STATE
+// ============================================================
+let currentScreen = 'boot';
+let userData = { first: '', last: '', email: '', phone: '' };
+let quizData = { bedrooms: null, budget: 1200, amenities: [], distance: null, priority: ['price','amenities','location','reviews'] };
+let alertCount = 0;
+
+// 21 Knoxville-area student apartments near UT
+const APARTMENTS_DATA = [
+  { name:'Hub Knoxville', price:1149, bedrooms:'1 Bed', amenities:['Pool','Gym','Study Room'], distanceMi:0.4, image:'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800', stars:4.7 },
+  { name:'University Walk', price:929, bedrooms:'2 Bed', amenities:['Parking','Gym','Furnished'], distanceMi:0.7, image:'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800', stars:4.5 },
+  { name:'The Knox Apartments', price:1049, bedrooms:'1 Bed', amenities:['Pool','Gym','Study Room'], distanceMi:0.3, image:'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800', stars:4.8 },
+  { name:'The Standard at Knoxville', price:1199, bedrooms:'Studio', amenities:['Pool','Gym','Study Room','Laundry'], distanceMi:0.2, image:'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800', stars:4.7 },
+  { name:'Villas Knoxville', price:849, bedrooms:'2 Bed', amenities:['Parking','Laundry','Pet Friendly'], distanceMi:1.1, image:'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800', stars:4.4 },
+  { name:'The Commons at Knoxville', price:899, bedrooms:'2 Bed', amenities:['Gym','Laundry','Furnished'], distanceMi:0.9, image:'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800', stars:4.5 },
+  { name:'Slate at 901', price:1099, bedrooms:'1 Bed', amenities:['Pool','Gym','Game Room'], distanceMi:0.5, image:'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800', stars:4.6 },
+  { name:'TENN', price:1249, bedrooms:'Studio', amenities:['Pool','Gym','Study Room','Furnished'], distanceMi:0.2, image:'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800', stars:4.8 },
+  { name:'Tradition at Knoxville', price:799, bedrooms:'3+ Bed', amenities:['Parking','Laundry','Pet Friendly'], distanceMi:1.8, image:'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800', stars:4.3 },
+  { name:'303 Flats', price:949, bedrooms:'1 Bed', amenities:['Pool','Parking','Study Room'], distanceMi:0.6, image:'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800', stars:4.5 },
+  { name:'The Davy', price:999, bedrooms:'2 Bed', amenities:['Gym','Laundry','Game Room'], distanceMi:0.5, image:'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800', stars:4.6 },
+  { name:'The Heights', price:949, bedrooms:'1 Bed', amenities:['Pool','Parking','Study Room'], distanceMi:0.6, image:'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800', stars:4.6 },
+  { name:'Knox Ridge', price:729, bedrooms:'3+ Bed', amenities:['Parking','Laundry'], distanceMi:2.0, image:'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800', stars:4.2 },
+  { name:'The Woodlands', price:879, bedrooms:'2 Bed', amenities:['Gym','Parking','Pet Friendly'], distanceMi:1.2, image:'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800', stars:4.4 },
+  { name:'The Mark', price:1129, bedrooms:'1 Bed', amenities:['Pool','Gym','Study Room','Furnished'], distanceMi:0.4, image:'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800', stars:4.7 },
+  { name:'Ever', price:1029, bedrooms:'Studio', amenities:['Pool','Gym','Laundry'], distanceMi:0.5, image:'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800', stars:4.5 },
+  { name:'Livano', price:949, bedrooms:'2 Bed', amenities:['Gym','Laundry','Furnished'], distanceMi:0.8, image:'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800', stars:4.5 },
+  { name:'Flagship Kerns Apartments', price:829, bedrooms:'2 Bed', amenities:['Parking','Laundry','Gym'], distanceMi:1.0, image:'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800', stars:4.4 },
+  { name:'Nova Knoxville', price:1079, bedrooms:'1 Bed', amenities:['Pool','Gym','Study Room'], distanceMi:0.5, image:'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800', stars:4.6 },
+  { name:'Quarry Trail Student Apartments', price:699, bedrooms:'3+ Bed', amenities:['Parking','Laundry','Pet Friendly'], distanceMi:2.1, image:'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800', stars:4.2 },
+  { name:'Union Knoxville', price:1179, bedrooms:'Studio', amenities:['Pool','Gym','Game Room','Furnished'], distanceMi:0.3, image:'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800', stars:4.7 },
+];
+const amenityMap = { pool:'Pool', gym:'Gym', study:'Study Room', laundry:'Laundry', parking:'Parking', pet:'Pet Friendly', furnished:'Furnished', game:'Game Room' };
+
+// ============================================================
+// BOOT SEQUENCE
+// ============================================================
+const bootLines = [
+  { text: '> SMART_LEASE v2.0.26', delay: 0 },
+  { text: '> INITIALIZING HOUSING DATABASE...', delay: 800 },
+  { text: '> CONNECTING TO KNOXVILLE NETWORK...', delay: 1600 },
+  { text: '> LOADING PROPERTY RECORDS... [OK]', delay: 2600 },
+  { text: '> ENCRYPTION: AES-256-GCM [ACTIVE]', delay: 3200 },
+  { text: '> STATUS: ONLINE', delay: 4000 },
+  { text: ' ', delay: 4600 },
+  { text: '> READY FOR INPUT_', delay: 5000 },
+];
+
+function runBootSequence() {
+  const container = document.getElementById('bootText');
+  container.innerHTML = '';
+  
+  bootLines.forEach((line, idx) => {
+    setTimeout(() => {
+      const div = document.createElement('div');
+      div.style.cssText = 'color: var(--cyan); font-size: 12px; margin-bottom: 6px; overflow: hidden; white-space: nowrap;';
+      if (line.text === ' ') {
+        div.innerHTML = '&nbsp;';
+        container.appendChild(div);
+        return;
+      }
+      container.appendChild(div);
+      typeText(div, line.text, 30);
+      
+      // Show enter button after last line
+      if (idx === bootLines.length - 1) {
+        setTimeout(() => {
+          document.getElementById('bootEnter').classList.remove('hidden');
+        }, line.text.length * 30 + 400);
+      }
+    }, line.delay);
+  });
+}
+
+function typeText(element, text, speed) {
+  let i = 0;
+  element.textContent = '';
+  const interval = setInterval(() => {
+    element.textContent += text[i];
+    i++;
+    if (i >= text.length) {
+      clearInterval(interval);
+    }
+  }, speed);
+}
+
+// ============================================================
+// SCREEN TRANSITIONS
+// ============================================================
+function transitionTo(screenId) {
+  const currentEl = document.querySelector('.screen.active');
+  if (currentEl) {
+    currentEl.classList.add('glitch-out');
+    setTimeout(() => {
+      currentEl.classList.remove('active', 'glitch-out');
+      const nextEl = document.getElementById('screen-' + screenId);
+      nextEl.classList.add('active', 'glitch-in');
+      setTimeout(() => {
+        nextEl.classList.remove('glitch-in');
+      }, 500);
+      currentScreen = screenId;
+      
+      // Show status bar after boot
+      if (screenId !== 'boot') {
+        document.getElementById('statusBar').style.display = 'flex';
+      }
+      
+      // Re-init lucide icons for new screen
+      if (typeof lucide !== 'undefined') {
+        setTimeout(() => lucide.createIcons(), 100);
+      }
+    }, 500);
+  }
+}
+
+function bootToRegister() {
+  transitionTo('register');
+}
+
+// ============================================================
+// REGISTRATION
+// ============================================================
+function submitRegistration() {
+  const first = document.getElementById('regFirst').value.trim();
+  const last = document.getElementById('regLast').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const phone = document.getElementById('regPhone').value.trim();
+  
+  let valid = true;
+  
+  // Reset errors
+  ['errFirst','errLast','errEmail','errPhone'].forEach(id => {
+    document.getElementById(id).classList.add('hidden');
+  });
+  
+  if (!first) { document.getElementById('errFirst').classList.remove('hidden'); valid = false; }
+  if (!last) { document.getElementById('errLast').classList.remove('hidden'); valid = false; }
+  if (!email || !email.includes('@')) { document.getElementById('errEmail').classList.remove('hidden'); valid = false; }
+  if (!phone) { document.getElementById('errPhone').classList.remove('hidden'); valid = false; }
+  
+  if (!valid) return;
+  
+  userData = { first, last, email, phone };
+  
+  // Update profile
+  document.getElementById('profileName').textContent = (first + '_' + last).toUpperCase();
+  document.getElementById('profileEmail').textContent = email;
+  document.getElementById('sessionId').textContent = Math.floor(1000 + Math.random() * 9000);
+  
+  transitionTo('quiz');
+}
+
+// ============================================================
+// QUIZ: BEDROOMS
+// ============================================================
+function selectBedroom(btn) {
+  document.querySelectorAll('#bedroomBtns .term-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  quizData.bedrooms = btn.dataset.val;
+  document.getElementById('bedroomVal').textContent = '"' + btn.dataset.val + '"';
+  updateProgress();
+}
+
+// ============================================================
+// QUIZ: BUDGET
+// ============================================================
+function updateBudget(val) {
+  document.getElementById('budgetVal').textContent = Number(val).toLocaleString();
+  quizData.budget = Number(val);
+  updateProgress();
+}
+
+// ============================================================
+// QUIZ: AMENITIES
+// ============================================================
+function toggleAmenity(el) {
+  const amenity = el.dataset.amenity;
+  if (el.classList.contains('on')) {
+    el.classList.remove('on');
+    el.textContent = '[OFF]';
+    quizData.amenities = quizData.amenities.filter(a => a !== amenity);
+  } else {
+    el.classList.add('on');
+    el.textContent = '[ON]';
+    quizData.amenities.push(amenity);
+  }
+  updateProgress();
+}
+
+// ============================================================
+// QUIZ: DISTANCE
+// ============================================================
+function selectDist(btn) {
+  document.querySelectorAll('#distBtns .term-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  quizData.distance = btn.dataset.val;
+  document.getElementById('distVal').textContent = '"' + btn.dataset.val + '"';
+  updateProgress();
+}
+
+// ============================================================
+// QUIZ: PRIORITY
+// ============================================================
+function cyclePriority(item) {
+  const list = document.getElementById('priorityList');
+  const items = Array.from(list.children);
+  const idx = items.indexOf(item);
+  
+  // Move to end (cycle)
+  list.appendChild(item);
+  
+  // Re-number
+  Array.from(list.children).forEach((el, i) => {
+    el.querySelector('.priority-num').textContent = i + 1;
+  });
+  
+  // Update data
+  quizData.priority = Array.from(list.children).map(el => el.dataset.priority);
+  updateProgress();
+}
+
+// ============================================================
+// PROGRESS
+// ============================================================
+function updateProgress() {
+  let filled = 0;
+  if (quizData.bedrooms) filled++;
+  if (quizData.budget !== 1200) filled++; // changed from default
+  if (quizData.amenities.length > 0) filled++;
+  if (quizData.distance) filled++;
+  // Priority always counts as filled since it has a default
+  filled++;
+  
+  const pct = Math.round((filled / 5) * 100);
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+}
+
+// ============================================================
+// EXECUTE SEARCH
+// ============================================================
+function executeSearch() {
+  const btn = document.getElementById('executeBtn');
+  btn.textContent = '[ EXECUTING... ]';
+  btn.style.pointerEvents = 'none';
+  
+  // Glitch effect on button
+  btn.style.animation = 'glitchOut 0.3s ease-in forwards';
+  
+  setTimeout(() => {
+    transitionTo('results');
+    runProcessingAnimation();
+  }, 400);
+}
+
+function runProcessingAnimation() {
+  const spinner = document.getElementById('spinner');
+  const chars = ['|', '/', '-', '\\'];
+  let i = 0;
+  
+  const interval = setInterval(() => {
+    spinner.textContent = chars[i % chars.length];
+    i++;
+  }, 100);
+  
+  setTimeout(() => {
+    clearInterval(interval);
+    document.getElementById('processingOverlay').classList.add('hidden');
+    renderV2Results();
+    const content = document.getElementById('resultsContent');
+    content.classList.remove('hidden');
+    content.classList.add('glitch-in');
+    setTimeout(() => content.classList.remove('glitch-in'), 500);
+  }, 2000);
+}
+
+function computeFilteredResultsV2() {
+  const budget = quizData.budget || 1200;
+  const wantedAmenities = (quizData.amenities || []).map(a => amenityMap[a] || a);
+  const bedMap = { studio:'Studio', '1':'1 Bed', '2':'2 Bed', '3':'2 Bed', '4+':'3+ Bed' };
+  const wantedBed = quizData.bedrooms ? bedMap[quizData.bedrooms] || null : null;
+  const distMax = !quizData.distance ? 999 : quizData.distance === 'walking' ? 0.5 : quizData.distance === 'short_drive' ? 1.5 : 999;
+  let filtered = APARTMENTS_DATA.filter(apt => {
+    if (wantedBed && apt.bedrooms !== wantedBed) return false;
+    if (apt.price > budget + 200) return false;
+    if (apt.distanceMi > distMax) return false;
+    return true;
+  });
+  if (filtered.length === 0) filtered = APARTMENTS_DATA;
+  filtered = filtered.map(apt => {
+    let score = 70;
+    const matchAm = apt.amenities.filter(a => wantedAmenities.includes(a)).length;
+    score += matchAm * 8;
+    if (apt.price <= budget) score += 10;
+    const distScore = apt.distanceMi <= 0.5 ? 8 : apt.distanceMi <= 1 ? 4 : 0;
+    score += distScore;
+    return { ...apt, matchScore: Math.min(99, Math.round(score)) };
+  });
+  filtered.sort((a,b) => b.matchScore - a.matchScore);
+  const priorities = quizData.priority || ['price','amenities','location','reviews'];
+  if (priorities[0] === 'price') filtered.sort((a,b) => a.price - b.price);
+  else if (priorities[0] === 'location') filtered.sort((a,b) => a.distanceMi - b.distanceMi);
+  else if (priorities[0] === 'amenities') filtered.sort((a,b) => b.matchScore - a.matchScore);
+  else if (priorities[0] === 'reviews') filtered.sort((a,b) => b.stars - a.stars);
+  return filtered.slice(0, 6);
+}
+
+function renderV2Results() {
+  const results = computeFilteredResultsV2();
+  document.getElementById('v2-results-header').textContent = '> SEARCH_COMPLETE: ' + results.length + ' MATCHES';
+  const container = document.getElementById('v2-results-container');
+  let html = '';
+  results.forEach((apt, i) => {
+    const barWidth = Math.round((apt.matchScore / 99) * 16);
+    const starsHtml = [...Array(5)].map((_, j) => j < Math.floor(apt.stars) ? '<span class="star filled">★</span>' : '<span class="star">★</span>').join('');
+    const amenityTags = apt.amenities.map(a => '<span style="font-size:9px; color:var(--green); border:1px solid rgba(0,255,65,0.3); padding:1px 6px; margin-right:3px;">[' + a.replace(/\s/g, '_') + ']</span>').join('');
+    html += `<div class="dossier" style="margin-bottom:20px; padding:0;">
+          <div style="padding:10px 14px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #1a1a1a;">
+            <span class="text-cyan neon-cyan font-oxa" style="font-size:12px; font-weight:700;">FILE #${String(i+1).padStart(3,'0')}</span>
+            <span style="color:#333; font-size:9px;">CLASSIFIED</span>
+          </div>
+          <div class="img-overlay" style="height:140px; overflow:hidden;">
+            <img src="${apt.image}" style="width:100%; height:100%; object-fit:cover; filter: saturate(0.6) brightness(0.8) hue-rotate(140deg);" alt="${apt.name}">
+          </div>
+          <div style="padding:14px;">
+            <div style="margin-bottom:4px;">
+              <span style="color:#444; font-size:10px;">DESIGNATION: </span>
+              <span class="text-cyan" style="font-size:12px;">${apt.name}</span>
+            </div>
+            <div style="margin-bottom:6px;">
+              <span style="color:#444; font-size:10px;">MATCH_SCORE: </span>
+              <span class="text-green" style="font-size:10px;">${'█'.repeat(barWidth)}${'░'.repeat(16-barWidth)}</span>
+              <span class="text-green neon-green font-oxa" style="font-size:13px; font-weight:700; margin-left:6px;">${apt.matchScore}%</span>
+            </div>
+            <div style="margin-bottom:4px;">
+              <span style="color:#444; font-size:10px;">COST: </span>
+              <span class="font-oxa text-cyan neon-cyan" style="font-size:16px; font-weight:700;">$${apt.price.toLocaleString()}</span>
+              <span style="color:#444; font-size:10px;">/mo</span>
+            </div>
+            <div style="margin-bottom:4px;">
+              <span style="color:#444; font-size:10px;">RATING: </span>${starsHtml}
+              <span style="color:#666; font-size:10px; margin-left:4px;">${apt.stars}</span>
+            </div>
+            <div style="margin-bottom:4px;">
+              <span style="color:#444; font-size:10px;">BEDS: </span>
+              <span style="color:#888; font-size:10px;">${apt.bedrooms}</span>
+            </div>
+            <div style="margin-bottom:8px;">
+              <span style="color:#444; font-size:10px;">AMENITIES: </span>
+              ${amenityTags}
+            </div>
+            <div style="margin-bottom:12px;">
+              <span style="color:#444; font-size:10px;">STATUS: </span>
+              <span class="text-green neon-green" style="font-size:10px;">● AVAILABLE</span>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button class="term-btn" style="flex:1; font-size:10px;" onclick="accessFile('${apt.name}')">[ ACCESS FILE ]</button>
+              <span class="alert-toggle" onclick="toggleAlert(this)">[ SET_ALERT ]</span>
+            </div>
+          </div>
+        </div>`;
+  });
+  container.innerHTML = html;
+}
+
+// ============================================================
+// RESULTS INTERACTIONS
+// ============================================================
+function accessFile(numOrName) {
+  const name = typeof numOrName === 'string' ? numOrName : { 1: 'The Knox', 2: 'University Village', 3: 'Vol Hall' }[numOrName];
+  alert('ACCESSING DOSSIER: ' + (name || numOrName) + '\n\n[Full property details would load here]\n\nFEATURE: COMING_SOON');
+}
+
+function toggleAlert(el) {
+  if (el.classList.contains('on')) {
+    el.classList.remove('on');
+    el.textContent = '[ SET_ALERT ]';
+    alertCount--;
+  } else {
+    el.classList.add('on');
+    el.textContent = '[ ALERT_ON ]';
+    alertCount++;
+  }
+}
+
+// ============================================================
+// BOTTOM NAV
+// ============================================================
+function switchTab(navItem, tabName) {
+  ['results','sublease','rmmate','map','assist','review'].forEach(name => {
+    const el = document.getElementById('screen-' + name);
+    if (el) el.classList.remove('active');
+  });
+  
+  // Show target
+  const target = document.getElementById('screen-' + (tabName === 'home' ? 'results' : tabName));
+  if (target) {
+    target.classList.add('active', 'glitch-in');
+    setTimeout(() => target.classList.remove('glitch-in'), 500);
+  }
+  
+  // Update all nav items across all screens
+  document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+  document.querySelectorAll('.bottom-nav').forEach(nav => {
+    nav.querySelectorAll('.nav-item').forEach(item => {
+      const span = item.querySelector('span');
+      if (span && span.textContent.toLowerCase() === tabName) item.classList.add('active');
+    });
+  });
+  
+  // Re-init lucide
+  if (typeof lucide !== 'undefined') {
+    setTimeout(() => lucide.createIcons(), 100);
+  }
+}
+
+// ============================================================
+// MAP TOOLTIP (v2)
+// ============================================================
+function v2ShowMapTooltip(e, name, desc) {
+  const t = document.getElementById('v2-map-tooltip');
+  document.getElementById('v2-tooltip-name').textContent = name;
+  document.getElementById('v2-tooltip-desc').textContent = desc;
+  t.style.display = 'block';
+  t.style.left = (e.clientX + 15) + 'px';
+  t.style.top = (e.clientY + 15) + 'px';
+}
+function v2HideMapTooltip() { document.getElementById('v2-map-tooltip').style.display = 'none'; }
+document.addEventListener('mousemove', function(e) {
+  const t = document.getElementById('v2-map-tooltip');
+  if (t && t.style.display === 'block') { t.style.left = (e.clientX + 15) + 'px'; t.style.top = (e.clientY + 15) + 'px'; }
+});
+
+// ============================================================
+// RESET
+// ============================================================
+function resetApp() {
+  if (confirm('TERMINATE SESSION?\n\nAll search parameters will be cleared.')) {
+    // Hide all screens
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('statusBar').style.display = 'none';
+    
+    // Reset state
+    userData = { first: '', last: '', email: '', phone: '' };
+    quizData = { bedrooms: null, budget: 1200, amenities: [], distance: null, priority: ['price','amenities','location','reviews'] };
+    alertCount = 0;
+    
+    // Reset form
+    ['regFirst','regLast','regEmail','regPhone'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    
+    // Reset quiz
+    document.querySelectorAll('#bedroomBtns .term-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('bedroomVal').textContent = '_';
+    document.getElementById('budgetSlider').value = 1200;
+    document.getElementById('budgetVal').textContent = '1,200';
+    document.querySelectorAll('.toggle-switch').forEach(t => { t.classList.remove('on'); t.textContent = '[OFF]'; });
+    document.querySelectorAll('#distBtns .term-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('distVal').textContent = '_';
+    document.getElementById('progressBar').style.width = '0%';
+    document.getElementById('progressPct').textContent = '0%';
+    
+    // Reset execute button
+    const btn = document.getElementById('executeBtn');
+    btn.textContent = '[ EXECUTE SEARCH ]';
+    btn.style.pointerEvents = 'auto';
+    btn.style.animation = 'none';
+    
+    // Reset processing
+    document.getElementById('processingOverlay').classList.remove('hidden');
+    document.getElementById('resultsContent').classList.add('hidden');
+    
+    // Reset alerts
+    document.querySelectorAll('.alert-toggle').forEach(a => { a.classList.remove('on'); a.textContent = '[ SET_ALERT ]'; });
+    
+    // Show boot
+    const bootScreen = document.getElementById('screen-boot');
+    bootScreen.classList.add('active');
+    document.getElementById('bootEnter').classList.add('hidden');
+    runBootSequence();
+  }
+}
+
+// ============================================================
+// INIT
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+  // Init Lucide icons
+  if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
+  }
+  
+  // Run boot sequence
+  runBootSequence();
+  
+  // Init progress
+  updateProgress();
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Smart Lease v4 — Immersive Dashboard</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        surface: '#09090B',
+        card: '#18181B',
+        cardHover: '#1F1F23',
+        border: '#27272A',
+        borderLight: '#3F3F46',
+        teal: '#14B8A6',
+        tealDim: '#0D9488',
+        tealGlow: 'rgba(20,184,166,0.15)',
+        tealGlowStrong: 'rgba(20,184,166,0.3)',
+      },
+      fontFamily: {
+        body: ['Inter', 'system-ui', 'sans-serif'],
+        data: ['"Space Grotesk"', 'monospace'],
+      }
+    }
+  }
+}
+</script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: #000; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; }
+
+  /* Phone frame */
+  .phone-frame {
+    width: 430px; height: 932px; background: #09090B; position: relative; overflow: hidden;
+    border: 3px solid #27272A; border-radius: 48px;
+    box-shadow: 0 0 0 2px #09090B, 0 25px 80px rgba(0,0,0,0.8), inset 0 0 60px rgba(20,184,166,0.02);
+  }
+  .phone-frame::before {
+    content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    width: 160px; height: 34px; background: #09090B; border-radius: 0 0 20px 20px; z-index: 999;
+  }
+
+  /* Screens */
+  .screen { position: absolute; inset: 0; transition: opacity 0.5s cubic-bezier(0.4,0,0.2,1), transform 0.5s cubic-bezier(0.4,0,0.2,1); }
+  .screen.hidden { opacity: 0; pointer-events: none; transform: scale(0.97); }
+  .screen.active { opacity: 1; pointer-events: all; transform: scale(1); }
+
+  /* Animated gradient mesh for splash */
+  .gradient-mesh {
+    position: absolute; inset: 0; overflow: hidden; z-index: 0;
+  }
+  .gradient-mesh::before {
+    content: ''; position: absolute; width: 600px; height: 600px; top: -200px; left: -200px;
+    background: radial-gradient(circle, rgba(20,184,166,0.08) 0%, transparent 70%);
+    animation: meshFloat1 8s ease-in-out infinite;
+  }
+  .gradient-mesh::after {
+    content: ''; position: absolute; width: 500px; height: 500px; bottom: -150px; right: -150px;
+    background: radial-gradient(circle, rgba(20,184,166,0.05) 0%, transparent 70%);
+    animation: meshFloat2 10s ease-in-out infinite;
+  }
+  @keyframes meshFloat1 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(80px,60px) scale(1.15); } }
+  @keyframes meshFloat2 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-60px,-40px) scale(1.1); } }
+
+  /* 3D card tilt */
+  .tilt-card {
+    transform-style: preserve-3d; perspective: 800px; transition: transform 0.15s ease-out;
+  }
+  .tilt-card .card-inner {
+    transition: box-shadow 0.3s ease;
+  }
+  .tilt-card:hover .card-inner, .tilt-card:active .card-inner {
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 30px rgba(20,184,166,0.08);
+  }
+
+  /* Scrollbar */
+  .dash-scroll::-webkit-scrollbar { width: 3px; }
+  .dash-scroll::-webkit-scrollbar-track { background: transparent; }
+  .dash-scroll::-webkit-scrollbar-thumb { background: #27272A; border-radius: 3px; }
+
+  /* Filter pills */
+  .filter-pill { transition: all 0.2s ease; }
+  .filter-pill.active { background: rgba(20,184,166,0.15); border-color: #14B8A6; color: #14B8A6; }
+
+  /* Segmented control */
+  .seg-btn { transition: all 0.2s ease; cursor: pointer; user-select: none; }
+  .seg-btn.active { background: #14B8A6; color: #09090B; font-weight: 600; }
+
+  /* Range slider */
+  input[type="range"] {
+    -webkit-appearance: none; appearance: none; width: 100%; height: 4px;
+    background: #27272A; border-radius: 2px; outline: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%;
+    background: #14B8A6; cursor: pointer; box-shadow: 0 0 10px rgba(20,184,166,0.4);
+  }
+
+  /* Comparison bars */
+  .comp-bar { transition: width 0.8s cubic-bezier(0.4,0,0.2,1); }
+
+  /* SVG gauge */
+  .gauge-arc { transition: stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1); }
+
+  /* Bottom sheet */
+  .bottom-sheet {
+    position: absolute; bottom: 0; left: 0; right: 0; background: #18181B;
+    border-radius: 20px 20px 0 0; transform: translateY(100%);
+    transition: transform 0.45s cubic-bezier(0.32, 0.72, 0, 1);
+    z-index: 100; max-height: 85%;
+  }
+  .bottom-sheet.open { transform: translateY(0); }
+  .bottom-sheet-overlay {
+    position: absolute; inset: 0; background: rgba(0,0,0,0.6); opacity: 0;
+    pointer-events: none; transition: opacity 0.3s ease; z-index: 99;
+  }
+  .bottom-sheet-overlay.open { opacity: 1; pointer-events: all; }
+
+  /* Status bar */
+  .status-bar { font-family: 'Space Grotesk', monospace; }
+
+  /* Input styling */
+  .dash-input {
+    background: #18181B; border: 1px solid #27272A; color: #fff; border-radius: 10px;
+    padding: 12px 14px; font-size: 14px; outline: none; width: 100%;
+    transition: border-color 0.2s ease;
+  }
+  .dash-input:focus { border-color: #14B8A6; }
+  .dash-input::placeholder { color: #52525B; }
+
+  /* Bottom nav */
+  .nav-item { transition: all 0.2s ease; position: relative; cursor: pointer; }
+  .nav-item.active .nav-dot { opacity: 1; }
+  .nav-dot { position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%); width: 4px; height: 4px; border-radius: 50%; background: #14B8A6; opacity: 0; transition: opacity 0.2s ease; }
+
+  /* Animate in */
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  .anim-fade-up { animation: fadeUp 0.6s cubic-bezier(0.4,0,0.2,1) forwards; opacity: 0; }
+
+  /* Pulse glow on teal elements */
+  @keyframes pulseGlow { 0%,100% { box-shadow: 0 0 15px rgba(20,184,166,0.2); } 50% { box-shadow: 0 0 25px rgba(20,184,166,0.35); } }
+
+  /* Star rating */
+  .star { display: inline-block; width: 12px; height: 12px; }
+
+  /* Toggle switch */
+  .toggle-track {
+    width: 40px; height: 22px; border-radius: 11px; background: #27272A;
+    position: relative; cursor: pointer; transition: background 0.2s ease;
+  }
+  .toggle-track.on { background: #14B8A6; }
+  .toggle-thumb {
+    width: 18px; height: 18px; border-radius: 50%; background: #fff;
+    position: absolute; top: 2px; left: 2px; transition: transform 0.2s ease;
+  }
+  .toggle-track.on .toggle-thumb { transform: translateX(18px); }
+
+  /* Filters collapse */
+  .filters-body { max-height: 400px; overflow: hidden; transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1); }
+  .filters-body.collapsed { max-height: 0; }
+</style>
+</head>
+<body>
+
+<div class="phone-frame" id="app">
+
+  <!-- Status Bar -->
+  <div class="status-bar absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-8 pt-4 pb-1 text-white text-xs font-medium" style="padding-top: 14px;">
+    <span>9:41</span>
+    <div class="flex items-center gap-1.5">
+      <i data-lucide="signal" class="w-3.5 h-3.5"></i>
+      <i data-lucide="wifi" class="w-3.5 h-3.5"></i>
+      <i data-lucide="battery-full" class="w-3.5 h-3.5"></i>
+    </div>
+  </div>
+
+  <!-- ==================== SCREEN 1: SPLASH ==================== -->
+  <div id="screen-splash" class="screen active">
+    <div class="gradient-mesh"></div>
+    <div class="relative z-10 flex flex-col items-center justify-center h-full px-8">
+      <!-- Logo mark -->
+      <div class="mb-6 anim-fade-up" style="animation-delay: 0.1s;">
+        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal to-tealDim flex items-center justify-center" style="box-shadow: 0 0 40px rgba(20,184,166,0.25);">
+          <i data-lucide="layout-dashboard" class="w-8 h-8 text-surface"></i>
+        </div>
+      </div>
+      <!-- Title -->
+      <h1 class="font-data text-3xl font-bold tracking-[0.25em] text-white mb-2 anim-fade-up" style="animation-delay: 0.25s;">SMART LEASE</h1>
+      <p class="text-zinc-500 text-sm tracking-[0.15em] uppercase mb-16 anim-fade-up" style="animation-delay: 0.35s;">Student Housing Intelligence</p>
+      <!-- Version badge -->
+      <div class="absolute bottom-40 left-1/2 -translate-x-1/2 anim-fade-up" style="animation-delay: 0.5s;">
+        <div class="flex items-center gap-2 text-zinc-600 text-xs tracking-wider uppercase">
+          <div class="w-1.5 h-1.5 rounded-full bg-teal"></div>
+          <span>Dashboard Mode</span>
+        </div>
+      </div>
+      <!-- CTA -->
+      <button onclick="goTo('screen-onboard')" class="anim-fade-up px-10 py-3.5 bg-transparent border border-zinc-700 text-white text-sm font-medium tracking-wider uppercase rounded-full hover:border-teal hover:text-teal transition-all duration-300" style="animation-delay: 0.6s;">
+        Access Dashboard
+      </button>
+    </div>
+  </div>
+
+  <!-- ==================== SCREEN 2: ONBOARDING ==================== -->
+  <div id="screen-onboard" class="screen hidden">
+    <div class="flex flex-col h-full pt-14 px-6">
+      <!-- Header -->
+      <div class="mt-8 mb-8">
+        <p class="text-zinc-500 text-xs tracking-widest uppercase mb-2">Step 1 of 1</p>
+        <h2 class="font-data text-2xl font-bold text-white tracking-tight">Create your profile</h2>
+        <p class="text-zinc-500 text-sm mt-1">Quick setup. Then straight to your dashboard.</p>
+      </div>
+      <!-- 2x2 Grid -->
+      <div class="grid grid-cols-2 gap-3 mb-6">
+        <div>
+          <label class="text-zinc-500 text-xs uppercase tracking-wider mb-1.5 block">First</label>
+          <input type="text" class="dash-input" placeholder="Wesley" id="inp-first">
+        </div>
+        <div>
+          <label class="text-zinc-500 text-xs uppercase tracking-wider mb-1.5 block">Last</label>
+          <input type="text" class="dash-input" placeholder="Knox" id="inp-last">
+        </div>
+        <div>
+          <label class="text-zinc-500 text-xs uppercase tracking-wider mb-1.5 block">Email</label>
+          <input type="email" class="dash-input" placeholder="wk@utk.edu" id="inp-email">
+        </div>
+        <div>
+          <label class="text-zinc-500 text-xs uppercase tracking-wider mb-1.5 block">Phone</label>
+          <input type="tel" class="dash-input" placeholder="(865) 555-0123" id="inp-phone">
+        </div>
+      </div>
+      <!-- Terms -->
+      <p class="text-zinc-600 text-xs text-center mb-6">By continuing you agree to our Terms and Privacy Policy</p>
+      <!-- Enter button -->
+      <button onclick="enterDashboard()" class="w-full py-3.5 bg-teal text-surface font-semibold text-sm tracking-wider uppercase rounded-xl transition-all duration-300 hover:shadow-lg" style="box-shadow: 0 0 20px rgba(20,184,166,0.2);">
+        Enter
+      </button>
+      <!-- Skip -->
+      <button onclick="enterDashboard()" class="mt-3 text-zinc-500 text-xs text-center hover:text-zinc-400 transition-colors">Skip for now</button>
+    </div>
+  </div>
+
+  <!-- ==================== SCREEN 3: DASHBOARD ==================== -->
+  <div id="screen-dashboard" class="screen hidden">
+    <div class="flex flex-col h-full pt-14">
+      <!-- Dashboard header -->
+      <div class="px-5 pt-4 pb-3 flex items-center justify-between">
+        <div>
+          <p class="text-zinc-500 text-xs tracking-widest uppercase">Dashboard</p>
+          <h2 class="font-data text-lg font-bold text-white">UT Knoxville Housing</h2>
+        </div>
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-card border border-border flex items-center justify-center cursor-pointer hover:border-teal transition-colors" onclick="toggleFilters()">
+            <i data-lucide="sliders-horizontal" class="w-4 h-4 text-zinc-400"></i>
+          </div>
+          <div class="w-8 h-8 rounded-full bg-card border border-border flex items-center justify-center">
+            <i data-lucide="bell" class="w-4 h-4 text-zinc-400"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scrollable content -->
+      <div class="flex-1 overflow-y-auto dash-scroll pb-20" id="dash-content">
+
+        <!-- FILTER SECTION -->
+        <div class="px-5 mb-4">
+          <div class="bg-card border border-border rounded-2xl overflow-hidden">
+            <!-- Filter header -->
+            <div class="flex items-center justify-between px-4 py-3 cursor-pointer" onclick="toggleFilters()">
+              <div class="flex items-center gap-2">
+                <i data-lucide="filter" class="w-3.5 h-3.5 text-teal"></i>
+                <span class="text-xs text-zinc-400 uppercase tracking-wider">Filters</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-xs text-teal font-data" id="result-count">Showing 3 of 15</span>
+                <i data-lucide="chevron-up" class="w-3.5 h-3.5 text-zinc-500 transition-transform duration-300" id="filter-chevron"></i>
+              </div>
+            </div>
+            <!-- Filter body -->
+            <div class="filters-body" id="filters-body">
+              <div class="px-4 pb-4 space-y-4">
+                <!-- Bedrooms -->
+                <div>
+                  <label class="text-zinc-500 text-[10px] uppercase tracking-widest mb-2 block">Bedrooms</label>
+                  <div class="flex gap-1.5" id="bed-filter">
+                    <div class="seg-btn active flex-1 text-center py-2 text-xs font-data rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-300" data-val="S" onclick="setBed(this)">S</div>
+                    <div class="seg-btn flex-1 text-center py-2 text-xs font-data rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-300" data-val="1" onclick="setBed(this)">1</div>
+                    <div class="seg-btn flex-1 text-center py-2 text-xs font-data rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-300" data-val="2" onclick="setBed(this)">2</div>
+                    <div class="seg-btn flex-1 text-center py-2 text-xs font-data rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-300" data-val="3" onclick="setBed(this)">3</div>
+                    <div class="seg-btn flex-1 text-center py-2 text-xs font-data rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-300" data-val="4+" onclick="setBed(this)">4+</div>
+                  </div>
+                </div>
+                <!-- Budget -->
+                <div>
+                  <div class="flex items-center justify-between mb-2">
+                    <label class="text-zinc-500 text-[10px] uppercase tracking-widest">Budget</label>
+                    <span class="text-teal text-xs font-data" id="budget-display">$600 — $1,200</span>
+                  </div>
+                  <div class="flex gap-3 items-center">
+                    <input type="range" min="400" max="800" value="600" id="budget-min" oninput="updateBudget()">
+                    <input type="range" min="800" max="1600" value="1200" id="budget-max" oninput="updateBudget()">
+                  </div>
+                </div>
+                <!-- Amenities -->
+                <div>
+                  <label class="text-zinc-500 text-[10px] uppercase tracking-widest mb-2 block">Amenities</label>
+                  <div class="flex flex-wrap gap-1.5" id="amenity-filter">
+                    <div class="filter-pill active px-3 py-1.5 text-[11px] rounded-full border border-zinc-700 text-zinc-400 cursor-pointer" data-amenity="Pool" onclick="togglePill(this)">Pool</div>
+                    <div class="filter-pill active px-3 py-1.5 text-[11px] rounded-full border border-zinc-700 text-zinc-400 cursor-pointer" data-amenity="Gym" onclick="togglePill(this)">Gym</div>
+                    <div class="filter-pill px-3 py-1.5 text-[11px] rounded-full border border-zinc-700 text-zinc-400 cursor-pointer" data-amenity="Parking" onclick="togglePill(this)">Parking</div>
+                    <div class="filter-pill px-3 py-1.5 text-[11px] rounded-full border border-zinc-700 text-zinc-400 cursor-pointer" data-amenity="Furnished" onclick="togglePill(this)">Furnished</div>
+                    <div class="filter-pill px-3 py-1.5 text-[11px] rounded-full border border-zinc-700 text-zinc-400 cursor-pointer" data-amenity="Pet Friendly" onclick="togglePill(this)">Pet OK</div>
+                    <div class="filter-pill px-3 py-1.5 text-[11px] rounded-full border border-zinc-700 text-zinc-400 cursor-pointer" data-amenity="Study Room" onclick="togglePill(this)">Study</div>
+                    <div class="filter-pill px-3 py-1.5 text-[11px] rounded-full border border-zinc-700 text-zinc-400 cursor-pointer" data-amenity="Laundry" onclick="togglePill(this)">Laundry</div>
+                    <div class="filter-pill px-3 py-1.5 text-[11px] rounded-full border border-zinc-700 text-zinc-400 cursor-pointer" data-amenity="Game Room" onclick="togglePill(this)">Game Room</div>
+                  </div>
+                </div>
+                <!-- Distance -->
+                <div>
+                  <label class="text-zinc-500 text-[10px] uppercase tracking-widest mb-2 block">Distance to Campus</label>
+                  <div class="flex gap-1.5" id="dist-filter">
+                    <div class="seg-btn active flex-1 text-center py-2 text-xs font-data rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-300" data-val="walk" onclick="setDist(this)">
+                      <i data-lucide="footprints" class="w-3 h-3 inline-block mr-1 -mt-0.5"></i>Walk
+                    </div>
+                    <div class="seg-btn flex-1 text-center py-2 text-xs font-data rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-300" data-val="drive" onclick="setDist(this)">
+                      <i data-lucide="car" class="w-3 h-3 inline-block mr-1 -mt-0.5"></i>Drive
+                    </div>
+                    <div class="seg-btn flex-1 text-center py-2 text-xs font-data rounded-lg bg-zinc-800 border border-zinc-700 text-zinc-300" data-val="any" onclick="setDist(this)">Any</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- COMPARISON CHART -->
+        <div class="px-5 mb-4">
+          <div class="bg-card border border-border rounded-2xl p-4">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2">
+                <i data-lucide="bar-chart-3" class="w-3.5 h-3.5 text-teal"></i>
+                <span class="text-xs text-zinc-400 uppercase tracking-wider">Comparison</span>
+              </div>
+              <div class="flex items-center gap-3 text-[10px] text-zinc-500">
+                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-teal inline-block"></span>Match</span>
+                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-zinc-500 inline-block"></span>Price</span>
+                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-500 inline-block"></span>Rating</span>
+              </div>
+            </div>
+            <!-- Chart rows -->
+            <div class="space-y-3" id="comparison-chart">
+              <!-- The Knox -->
+              <div class="comp-row">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-xs text-white font-medium">The Knox</span>
+                  <span class="text-[10px] text-zinc-500 font-data">96%</span>
+                </div>
+                <div class="space-y-1">
+                  <div class="h-1.5 bg-zinc-800 rounded-full overflow-hidden"><div class="comp-bar h-full bg-teal rounded-full" style="width: 0%" data-target="96"></div></div>
+                  <div class="h-1.5 bg-zinc-800 rounded-full overflow-hidden"><div class="comp-bar h-full bg-zinc-500 rounded-full" style="width: 0%" data-target="65"></div></div>
+                  <div class="h-1.5 bg-zinc-800 rounded-full overflow-hidden"><div class="comp-bar h-full bg-amber-500 rounded-full" style="width: 0%" data-target="96"></div></div>
+                </div>
+              </div>
+              <!-- University Village -->
+              <div class="comp-row">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-xs text-white font-medium">University Village</span>
+                  <span class="text-[10px] text-zinc-500 font-data">91%</span>
+                </div>
+                <div class="space-y-1">
+                  <div class="h-1.5 bg-zinc-800 rounded-full overflow-hidden"><div class="comp-bar h-full bg-teal rounded-full" style="width: 0%" data-target="91"></div></div>
+                  <div class="h-1.5 bg-zinc-800 rounded-full overflow-hidden"><div class="comp-bar h-full bg-zinc-500 rounded-full" style="width: 0%" data-target="55"></div></div>
+                  <div class="h-1.5 bg-zinc-800 rounded-full overflow-hidden"><div class="comp-bar h-full bg-amber-500 rounded-full" style="width: 0%" data-target="90"></div></div>
+                </div>
+              </div>
+              <!-- Vol Hall -->
+              <div class="comp-row">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-xs text-white font-medium">Vol Hall</span>
+                  <span class="text-[10px] text-zinc-500 font-data">87%</span>
+                </div>
+                <div class="space-y-1">
+                  <div class="h-1.5 bg-zinc-800 rounded-full overflow-hidden"><div class="comp-bar h-full bg-teal rounded-full" style="width: 0%" data-target="87"></div></div>
+                  <div class="h-1.5 bg-zinc-800 rounded-full overflow-hidden"><div class="comp-bar h-full bg-zinc-500 rounded-full" style="width: 0%" data-target="47"></div></div>
+                  <div class="h-1.5 bg-zinc-800 rounded-full overflow-hidden"><div class="comp-bar h-full bg-amber-500 rounded-full" style="width: 0%" data-target="86"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RESULT CARDS -->
+        <div class="px-5 space-y-3 mb-4" id="result-cards">
+          <!-- Card 1: The Knox -->
+          <div class="tilt-card" onmousemove="tilt(event, this)" onmouseleave="resetTilt(this)" ontouchmove="tiltTouch(event, this)" ontouchend="resetTilt(this)">
+            <div class="card-inner bg-card border border-border rounded-2xl p-4 cursor-pointer" onclick="openDetail(0)">
+              <div class="flex gap-3">
+                <!-- Photo -->
+                <div class="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0">
+                  <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800" class="w-full h-full object-cover" alt="The Knox">
+                </div>
+                <!-- Data -->
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-start justify-between mb-1">
+                    <h3 class="text-white text-sm font-semibold">The Knox</h3>
+                    <!-- SVG Gauge -->
+                    <div class="relative w-10 h-10 flex-shrink-0">
+                      <svg viewBox="0 0 36 36" class="w-full h-full -rotate-90">
+                        <circle cx="18" cy="18" r="15" fill="none" stroke="#27272A" stroke-width="3"/>
+                        <circle cx="18" cy="18" r="15" fill="none" stroke="#14B8A6" stroke-width="3" stroke-linecap="round" stroke-dasharray="94.2" stroke-dashoffset="94.2" class="gauge-arc" data-target="3.77"/>
+                      </svg>
+                      <span class="absolute inset-0 flex items-center justify-center text-[9px] font-data font-bold text-teal">96</span>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2 mb-1.5">
+                    <span class="text-white font-data text-lg font-bold">$1,049</span>
+                    <span class="text-zinc-500 text-[10px]">/mo</span>
+                  </div>
+                  <div class="flex items-center gap-1 mb-2">
+                    <div class="flex gap-0.5">
+                      <svg class="w-3 h-3 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                      <svg class="w-3 h-3 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                      <svg class="w-3 h-3 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                      <svg class="w-3 h-3 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                      <svg class="w-3 h-3 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                    </div>
+                    <span class="text-zinc-500 text-[10px] font-data">4.8</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-tealGlow text-teal border border-teal/20">Pool</span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-tealGlow text-teal border border-teal/20">Gym</span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-tealGlow text-teal border border-teal/20">Study</span>
+                  </div>
+                </div>
+              </div>
+              <!-- Action row -->
+              <div class="flex items-center justify-between mt-3 pt-3 border-t border-zinc-800">
+                <button class="text-[11px] text-teal font-medium flex items-center gap-1 hover:text-white transition-colors" onclick="event.stopPropagation(); openDetail(0)">
+                  <i data-lucide="expand" class="w-3 h-3"></i> Details
+                </button>
+                <button class="w-7 h-7 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center hover:border-teal transition-colors" onclick="event.stopPropagation(); toggleAlert(this)">
+                  <i data-lucide="bell" class="w-3.5 h-3.5 text-zinc-400"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2: University Village -->
+          <div class="tilt-card" onmousemove="tilt(event, this)" onmouseleave="resetTilt(this)" ontouchmove="tiltTouch(event, this)" ontouchend="resetTilt(this)">
+            <div class="card-inner bg-card border border-border rounded-2xl p-4 cursor-pointer" onclick="openDetail(1)">
+              <div class="flex gap-3">
+                <div class="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0">
+                  <img src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800" class="w-full h-full object-cover" alt="University Village">
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-start justify-between mb-1">
+                    <h3 class="text-white text-sm font-semibold">University Village</h3>
+                    <div class="relative w-10 h-10 flex-shrink-0">
+                      <svg viewBox="0 0 36 36" class="w-full h-full -rotate-90">
+                        <circle cx="18" cy="18" r="15" fill="none" stroke="#27272A" stroke-width="3"/>
+                        <circle cx="18" cy="18" r="15" fill="none" stroke="#14B8A6" stroke-width="3" stroke-linecap="round" stroke-dasharray="94.2" stroke-dashoffset="94.2" class="gauge-arc" data-target="8.48"/>
+                      </svg>
+                      <span class="absolute inset-0 flex items-center justify-center text-[9px] font-data font-bold text-teal">91</span>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2 mb-1.5">
+                    <span class="text-white font-data text-lg font-bold">$879</span>
+                    <span class="text-zinc-500 text-[10px]">/mo</span>
+                  </div>
+                  <div class="flex items-center gap-1 mb-2">
+                    <div class="flex gap-0.5">
+                      <svg class="w-3 h-3 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                      <svg class="w-3 h-3 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                      <svg class="w-3 h-3 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                      <svg class="w-3 h-3 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                      <svg class="w-3 h-3 text-zinc-600" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                    </div>
+                    <span class="text-zinc-500 text-[10px] font-data">4.5</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-tealGlow text-teal border border-teal/20">Parking</span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-tealGlow text-teal border border-teal/20">Gym</span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-tealGlow text-teal border border-teal/20">Furnished</span>
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center justify-between mt-3 pt-3 border-t border-zinc-800">
+                <button class="text-[11px] text-teal font-medium flex items-center gap-1 hover:text-white transition-colors" onclick="event.stopPropagation(); openDetail(1)">
+                  <i data-lucide="expand" class="w-3 h-3"></i> Details
+                </button>
+                <button class="w-7 h-7 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center hover:border-teal transition-colors" onclick="event.stopPropagation(); toggleAlert(this)">
+                  <i data-lucide="bell" class="w-3.5 h-3.5 text-zinc-400"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: Vol Hall -->
+          <div class="tilt-card" onmousemove="tilt(event, this)" onmouseleave="resetTilt(this)" ontouchmove="tiltTouch(event, this)" ontouchend="resetTilt(this)">
+            <div class="card-inner bg-card border border-border rounded-2xl p-4 cursor-pointer" onclick="openDetail(2)">
+              <div class="flex gap-3">
+                <div class="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0">
+                  <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800" class="w-full h-full object-cover" alt="Vol Hall">
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-start justify-between mb-1">
+                    <h3 class="text-white text-sm font-semibold">Vol Hall</h3>
+                    <div class="relative w-10 h-10 flex-shrink-0">
+                      <svg viewBox="0 0 36 36" class="w-full h-full -rotate-90">
+                        <circle cx="18" cy="18" r="15" fill="none" stroke="#27272A" stroke-width="3"/>
+                        <circle cx="18" cy="18" r="15" fill="none" stroke="#14B8A6" stroke-width="3" stroke-linecap="round" stroke-dasharray="94.2" stroke-dashoffset="94.2" class="gauge-arc" data-target="12.25"/>
+                      </svg>
+                      <span class="absolute inset-0 flex items-center justify-center text-[9px] font-data font-bold text-teal">87</span>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2 mb-1.5">
+                    <span class="text-white font-data text-lg font-bold">$749</span>
+                    <span class="text-zinc-500 text-[10px]">/mo</span>
+                  </div>
+                  <div class="flex items-center gap-1 mb-2">
+                    <div class="flex gap-0.5">
+                      <svg class="w-3 h-3 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                      <svg class="w-3 h-3 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                      <svg class="w-3 h-3 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                      <svg class="w-3 h-3 text-amber-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                      <svg class="w-3 h-3 text-zinc-600" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                    </div>
+                    <span class="text-zinc-500 text-[10px] font-data">4.3</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-tealGlow text-teal border border-teal/20">Pet OK</span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-tealGlow text-teal border border-teal/20">Laundry</span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-tealGlow text-teal border border-teal/20">Game</span>
+                  </div>
+                </div>
+              </div>
+              <div class="flex items-center justify-between mt-3 pt-3 border-t border-zinc-800">
+                <button class="text-[11px] text-teal font-medium flex items-center gap-1 hover:text-white transition-colors" onclick="event.stopPropagation(); openDetail(2)">
+                  <i data-lucide="expand" class="w-3 h-3"></i> Details
+                </button>
+                <button class="w-7 h-7 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center hover:border-teal transition-colors" onclick="event.stopPropagation(); toggleAlert(this)">
+                  <i data-lucide="bell" class="w-3.5 h-3.5 text-zinc-400"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick stats row -->
+        <div class="px-5 mb-6">
+          <div class="grid grid-cols-3 gap-2">
+            <div class="bg-card border border-border rounded-xl p-3 text-center">
+              <p class="text-teal font-data text-xl font-bold">$892</p>
+              <p class="text-zinc-500 text-[10px] uppercase tracking-wider mt-0.5">Avg Price</p>
+            </div>
+            <div class="bg-card border border-border rounded-xl p-3 text-center">
+              <p class="text-teal font-data text-xl font-bold">91%</p>
+              <p class="text-zinc-500 text-[10px] uppercase tracking-wider mt-0.5">Avg Match</p>
+            </div>
+            <div class="bg-card border border-border rounded-xl p-3 text-center">
+              <p class="text-teal font-data text-xl font-bold">4.5</p>
+              <p class="text-zinc-500 text-[10px] uppercase tracking-wider mt-0.5">Avg Rating</p>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- end dash-content -->
+
+      <!-- Bottom Sheet Overlay -->
+      <div class="bottom-sheet-overlay" id="sheet-overlay" onclick="closeDetail()"></div>
+
+      <!-- Bottom Sheet -->
+      <div class="bottom-sheet" id="bottom-sheet">
+        <div class="overflow-y-auto dash-scroll" style="max-height: 85vh;">
+          <!-- Handle -->
+          <div class="flex justify-center pt-3 pb-2 sticky top-0 bg-card z-10 rounded-t-2xl">
+            <div class="w-10 h-1 rounded-full bg-zinc-600"></div>
+          </div>
+          <!-- Content -->
+          <div id="sheet-content" class="px-5 pb-8">
+            <!-- Dynamically filled -->
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTTOM NAV -->
+      <div class="absolute bottom-0 left-0 right-0 bg-surface/95 backdrop-blur-lg border-t border-border z-50" style="padding-bottom: env(safe-area-inset-bottom, 20px);">
+        <div class="flex items-center justify-around py-3 px-2 gap-1 overflow-x-auto">
+          <div class="nav-item active flex flex-col items-center min-w-[52px]" onclick="switchNav(this, 'home')"><i data-lucide="layout-dashboard" class="w-4 h-4 text-teal"></i><div class="nav-dot"></div></div>
+          <div class="nav-item flex flex-col items-center min-w-[52px]" onclick="switchNav(this, 'sublease')"><i data-lucide="calendar" class="w-4 h-4 text-zinc-500"></i><div class="nav-dot"></div></div>
+          <div class="nav-item flex flex-col items-center min-w-[52px]" onclick="switchNav(this, 'roommates')"><i data-lucide="users" class="w-4 h-4 text-zinc-500"></i><div class="nav-dot"></div></div>
+          <div class="nav-item flex flex-col items-center min-w-[52px]" onclick="switchNav(this, 'map')"><i data-lucide="map-pin" class="w-4 h-4 text-zinc-500"></i><div class="nav-dot"></div></div>
+          <div class="nav-item flex flex-col items-center min-w-[52px]" onclick="switchNav(this, 'assist')"><i data-lucide="shield" class="w-4 h-4 text-zinc-500"></i><div class="nav-dot"></div></div>
+          <div class="nav-item flex flex-col items-center min-w-[52px]" onclick="switchNav(this, 'reviews')"><i data-lucide="message-square" class="w-4 h-4 text-zinc-500"></i><div class="nav-dot"></div></div>
+        </div>
+      </div>
+
+    </div><!-- end screen-dashboard -->
+
+    <!-- ==================== SUBLEASE ==================== -->
+    <div id="screen-sublease" class="screen hidden">
+      <div class="flex flex-col h-full pt-14 px-5 pb-24">
+        <h3 class="text-white font-data text-lg font-bold mb-1">Sublease Forum</h3>
+        <p class="text-zinc-500 text-sm mb-4">Find or post subleases. Real students, real deals.</p>
+        <div class="flex gap-2 mb-4"><button class="flex-1 py-3 bg-teal text-surface font-semibold text-sm rounded-xl">+ New Post</button><button class="w-12 h-12 rounded-xl bg-card border border-border flex items-center justify-center"><i data-lucide="search" class="w-5 h-5 text-zinc-400"></i></button></div>
+        <div class="bg-card border border-border rounded-xl p-4 mb-3"><p class="text-white font-medium">1BR at The Knox — $900/mo</p><p class="text-zinc-500 text-xs mt-1">Dec 2025 - Jul 2026 · -$149</p></div>
+        <div class="bg-card border border-border rounded-xl p-4 mb-3"><p class="text-white font-medium">2BR at Vol Hall — $650/ea</p><p class="text-zinc-500 text-xs mt-1">Jan - May 2026 · Need 1 roommate · Hot</p></div>
+        <div class="bg-card border border-border rounded-xl p-4"><p class="text-white font-medium">Studio sublet — University Village</p><p class="text-zinc-500 text-xs mt-1">Immediate · Furnished</p></div>
+      </div>
+      <div class="absolute bottom-0 left-0 right-0 bg-surface/95 backdrop-blur-lg border-t border-border z-50" style="padding-bottom: env(safe-area-inset-bottom, 20px);"><div class="flex items-center justify-around py-3 px-2 gap-1" id="nav-v4-sublease"></div></div>
+    </div>
+
+    <!-- ==================== ROOMMATES (Tinder) ==================== -->
+    <div id="screen-roommates" class="screen hidden">
+      <div class="flex flex-col h-full pt-14 px-5 pb-24">
+        <h3 class="text-white font-data text-lg font-bold mb-1">Roommate Find</h3>
+        <p class="text-zinc-500 text-sm mb-4">Swipe to match. Early bird, clean freak, night owl.</p>
+        <div class="flex-1 flex flex-col justify-center">
+          <div class="w-full h-[320px] rounded-2xl overflow-hidden bg-card border border-border relative mb-6">
+            <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400" class="w-full h-full object-cover object-top" alt="Roommate">
+            <div class="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-black/80 to-transparent"><p class="text-white font-data font-bold text-lg">Marcus, 22</p><p class="text-zinc-400 text-sm">CS Major · Early bird · Clean · No pets</p></div>
+          </div>
+          <div class="flex justify-center gap-6"><button class="w-14 h-14 rounded-full bg-card border border-border flex items-center justify-center text-xl">✕</button><button class="w-14 h-14 rounded-full bg-teal flex items-center justify-center text-xl text-surface">♥</button></div>
+        </div>
+      </div>
+      <div class="absolute bottom-0 left-0 right-0 bg-surface/95 backdrop-blur-lg border-t border-border z-50" style="padding-bottom: env(safe-area-inset-bottom, 20px);"><div class="flex items-center justify-around py-3 px-2 gap-1" id="nav-v4-roommates"></div></div>
+    </div>
+
+    <!-- ==================== MAP ==================== -->
+    <div id="screen-map" class="screen hidden">
+      <div class="flex flex-col h-full pt-14 px-5 pb-24">
+        <h3 class="text-white font-data text-lg font-bold mb-1">Map</h3>
+        <p class="text-zinc-500 text-sm mb-4">Hover over pins to see apartment summaries.</p>
+        <div class="flex-1 relative rounded-2xl overflow-hidden bg-card border border-border" onmousemove="v4UpdateTooltip(event)" id="v4-map">
+          <svg viewBox="0 0 300 300" class="w-full h-full"><rect width="100%" height="100%" fill="#18181B"/>
+            <circle cx="150" cy="80" r="14" fill="#14B8A6" style="cursor:pointer" onmouseenter="v4ShowTooltip('The Knox','$1,049/mo · 0.3 mi · Pool, Gym')" onmouseleave="v4HideTooltip()"/>
+            <circle cx="120" cy="130" r="14" fill="#14B8A6" style="cursor:pointer" onmouseenter="v4ShowTooltip('University Village','$879/mo · 0.8 mi · Parking, Gym')" onmouseleave="v4HideTooltip()"/>
+            <circle cx="180" cy="150" r="14" fill="#14B8A6" style="cursor:pointer" onmouseenter="v4ShowTooltip('Vol Hall','$749/mo · 1.2 mi · Pet Friendly')" onmouseleave="v4HideTooltip()"/>
+            <text x="150" y="200" text-anchor="middle" fill="#3f3f46" font-size="10">UT Campus</text>
+          </svg>
+          <div id="v4-map-tooltip" class="absolute bg-card border border-teal/30 p-3 rounded-lg text-sm hidden pointer-events-none z-10" style="max-width:200px; box-shadow:0 0 20px rgba(20,184,166,0.2)"><p class="text-teal font-semibold" id="v4-tooltip-name"></p><p class="text-zinc-500 text-xs mt-1" id="v4-tooltip-desc"></p></div>
+        </div>
+      </div>
+      <div class="absolute bottom-0 left-0 right-0 bg-surface/95 backdrop-blur-lg border-t border-border z-50" style="padding-bottom: env(safe-area-inset-bottom, 20px);"><div class="flex items-center justify-around py-3 px-2 gap-1" id="nav-v4-map"></div></div>
+    </div>
+
+    <!-- ==================== LEASE ASSIST ==================== -->
+    <div id="screen-assist" class="screen hidden">
+      <div class="flex flex-col h-full pt-14 px-5 pb-24">
+        <h3 class="text-white font-data text-lg font-bold mb-1">24/7 Lease Assistance</h3>
+        <p class="text-zinc-500 text-sm mb-4">Step-by-step guidance. TurboTax-style.</p>
+        <div class="space-y-3 mb-6">
+          <div class="bg-card border border-border rounded-xl p-4 flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-teal text-surface flex items-center justify-center font-bold text-sm">1</div><div><p class="text-white font-medium text-sm">Read your lease carefully</p><p class="text-zinc-500 text-xs">Key clauses — deposits, subletting, break fees.</p></div></div>
+          <div class="bg-card border border-teal/30 rounded-xl p-4 flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-teal text-surface flex items-center justify-center font-bold text-sm">2</div><div><p class="text-white font-medium text-sm">Upload or paste your lease</p><p class="text-zinc-500 text-xs">AI reviews it and explains in plain English.</p></div></div>
+          <div class="bg-card border border-border rounded-xl p-4 flex items-center gap-4 opacity-60"><div class="w-10 h-10 rounded-full border border-zinc-600 flex items-center justify-center font-bold text-sm text-zinc-500">3</div><div><p class="text-zinc-500 font-medium text-sm">Get questions answered</p><p class="text-zinc-600 text-xs">Chat with leasing expert or FAQ.</p></div></div>
+        </div>
+        <button class="w-full py-3 bg-teal text-surface font-semibold text-sm rounded-xl">Start now — it's free</button>
+      </div>
+      <div class="absolute bottom-0 left-0 right-0 bg-surface/95 backdrop-blur-lg border-t border-border z-50" style="padding-bottom: env(safe-area-inset-bottom, 20px);"><div class="flex items-center justify-around py-3 px-2 gap-1" id="nav-v4-assist"></div></div>
+    </div>
+
+    <!-- ==================== REVIEWS (Verified) ==================== -->
+    <div id="screen-reviews" class="screen hidden">
+      <div class="flex flex-col h-full pt-14 px-5 pb-24">
+        <h3 class="text-white font-data text-lg font-bold mb-1">Verified Reviews</h3>
+        <p class="text-zinc-500 text-sm mb-3">Only from people who actually lived there. UT email verified ✓</p>
+        <div class="flex gap-2 mb-4"><span class="px-3 py-1 rounded-full bg-teal/20 text-teal text-xs font-medium">✓ Verified</span><select class="flex-1 py-2 px-3 rounded-lg bg-card border border-border text-zinc-400 text-sm"><option>All properties</option><option>The Knox</option><option>Vol Hall</option></select></div>
+        <div class="space-y-3 overflow-y-auto">
+          <div class="bg-card border border-border rounded-xl p-4"><div class="flex justify-between mb-2"><span class="text-amber-400">★★★★★</span><span class="text-teal text-xs">Verified · lived 2023-24</span></div><p class="text-zinc-300 text-sm italic">"Best decision I made freshman year. Study rooms saved my GPA."</p><p class="text-zinc-500 text-xs mt-2">— Sarah M., The Knox · Class of '27</p></div>
+          <div class="bg-card border border-border rounded-xl p-4"><div class="flex justify-between mb-2"><span class="text-amber-400">★★★★☆</span><span class="text-teal text-xs">Verified · lived 2022-24</span></div><p class="text-zinc-300 text-sm italic">"Furnished units are a game changer. Moved in with just my suitcase."</p><p class="text-zinc-500 text-xs mt-2">— James K., University Village · Class of '26</p></div>
+          <div class="bg-card border border-border rounded-xl p-4"><div class="flex justify-between mb-2"><span class="text-amber-400">★★★★☆</span><span class="text-teal text-xs">Verified · lived 2023-24</span></div><p class="text-zinc-300 text-sm italic">"My dog loves it here. Game room always packed on weekends."</p><p class="text-zinc-500 text-xs mt-2">— Tyler R., Vol Hall · Class of '28</p></div>
+        </div>
+      </div>
+      <div class="absolute bottom-0 left-0 right-0 bg-surface/95 backdrop-blur-lg border-t border-border z-50" style="padding-bottom: env(safe-area-inset-bottom, 20px);"><div class="flex items-center justify-around py-3 px-2 gap-1" id="nav-v4-reviews"></div></div>
+    </div>
+
+    <div id="screen-profile" class="screen hidden" style="display:none;">
+      <div class="flex flex-col items-center justify-center h-full px-8">
+        <div class="w-14 h-14 rounded-2xl bg-card border border-border flex items-center justify-center mb-4">
+          <i data-lucide="user" class="w-7 h-7 text-teal"></i>
+        </div>
+        <h3 class="text-white font-data text-lg font-bold mb-2">Your Profile</h3>
+        <p class="text-zinc-500 text-sm text-center">Manage preferences, saved apartments, and notification settings.</p>
+        <div class="mt-6 px-4 py-2 rounded-full border border-zinc-700 text-zinc-500 text-xs">Coming Soon</div>
+      </div>
+      <div class="absolute bottom-0 left-0 right-0 bg-surface/95 backdrop-blur-lg border-t border-border z-50" style="padding-bottom: env(safe-area-inset-bottom, 20px);">
+        <div class="flex items-center justify-around py-3 px-4">
+          <div class="nav-item flex flex-col items-center" onclick="switchNav(this, 'home')"><i data-lucide="layout-dashboard" class="w-5 h-5 text-zinc-500"></i><div class="nav-dot"></div></div>
+          <div class="nav-item flex flex-col items-center" onclick="switchNav(this, 'roommates')"><i data-lucide="users" class="w-5 h-5 text-zinc-500"></i><div class="nav-dot"></div></div>
+          <div class="nav-item flex flex-col items-center" onclick="switchNav(this, 'reviews')"><i data-lucide="message-square" class="w-5 h-5 text-zinc-500"></i><div class="nav-dot"></div></div>
+          <div class="nav-item flex flex-col items-center" onclick="switchNav(this, 'alerts')"><i data-lucide="bell-ring" class="w-5 h-5 text-zinc-500"></i><div class="nav-dot"></div></div>
+          <div class="nav-item active flex flex-col items-center" onclick="switchNav(this, 'profile')"><i data-lucide="user" class="w-5 h-5 text-teal"></i><div class="nav-dot"></div></div>
+        </div>
+      </div>
+    </div>
+
+</div><!-- end phone-frame -->
+
+<script>
+// ============ DATA ============
+// 21 Knoxville-area student apartments near UT
+const APARTMENTS_DATA = [
+  { name:'Hub Knoxville', price:1149, bedrooms:'1 Bed', amenities:['Pool','Gym','Study Room'], distanceMi:0.4, distance:'0.4 mi', image:'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800', stars:4.7, sqft:'650-890', description:'Modern living steps from campus.', reviews:{ location:92, value:80, amenities:96, management:90, noise:78 }, address:'1600 Grand Ave, Knoxville TN' },
+  { name:'University Walk', price:929, bedrooms:'2 Bed', amenities:['Parking','Gym','Furnished'], distanceMi:0.7, distance:'0.7 mi', image:'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800', stars:4.5, sqft:'580-1100', description:'Furnished units, solid value.', reviews:{ location:85, value:94, amenities:88, management:86, noise:82 }, address:'2200 Cumberland Ave, Knoxville TN' },
+  { name:'The Knox Apartments', price:1049, bedrooms:'1 Bed', amenities:['Pool','Gym','Study Room'], distanceMi:0.3, distance:'0.3 mi', image:'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800', stars:4.8, sqft:'650-890', description:'Premium student living near UT.', reviews:{ location:95, value:82, amenities:98, management:90, noise:78 }, address:'1700 Cumberland Ave, Knoxville TN' },
+  { name:'The Standard at Knoxville', price:1199, bedrooms:'Studio', amenities:['Pool','Gym','Study Room','Laundry'], distanceMi:0.2, distance:'0.2 mi', image:'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800', stars:4.7, sqft:'520', description:'Right on campus.', reviews:{ location:98, value:75, amenities:96, management:92, noise:85 }, address:'100 Student Way, Knoxville TN' },
+  { name:'Villas Knoxville', price:849, bedrooms:'2 Bed', amenities:['Parking','Laundry','Pet Friendly'], distanceMi:1.1, distance:'1.1 mi', image:'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800', stars:4.4, sqft:'720-950', description:'Pet-friendly with nice grounds.', reviews:{ location:78, value:94, amenities:84, management:86, noise:82 }, address:'3200 Villas Dr, Knoxville TN' },
+  { name:'The Commons at Knoxville', price:899, bedrooms:'2 Bed', amenities:['Gym','Laundry','Furnished'], distanceMi:0.9, distance:'0.9 mi', image:'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800', stars:4.5, sqft:'640-900', description:'Clean, quiet, good WiFi.', reviews:{ location:82, value:92, amenities:86, management:86, noise:90 }, address:'2500 Commons Blvd, Knoxville TN' },
+  { name:'Slate at 901', price:1099, bedrooms:'1 Bed', amenities:['Pool','Gym','Game Room'], distanceMi:0.5, distance:'0.5 mi', image:'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800', stars:4.6, sqft:'680', description:'Social butterfly spot.', reviews:{ location:90, value:84, amenities:94, management:86, noise:72 }, address:'901 Slate St, Knoxville TN' },
+  { name:'TENN', price:1249, bedrooms:'Studio', amenities:['Pool','Gym','Study Room','Furnished'], distanceMi:0.2, distance:'0.2 mi', image:'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800', stars:4.8, sqft:'540', description:'Premium everything.', reviews:{ location:99, value:72, amenities:98, management:94, noise:80 }, address:'200 Volunteer Blvd, Knoxville TN' },
+  { name:'Tradition at Knoxville', price:799, bedrooms:'3+ Bed', amenities:['Parking','Laundry','Pet Friendly'], distanceMi:1.8, distance:'1.8 mi', image:'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800', stars:4.3, sqft:'1100+', description:'Best for groups.', reviews:{ location:72, value:98, amenities:80, management:78, noise:82 }, address:'4100 Tradition Way, Knoxville TN' },
+  { name:'303 Flats', price:949, bedrooms:'1 Bed', amenities:['Pool','Parking','Study Room'], distanceMi:0.6, distance:'0.6 mi', image:'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800', stars:4.5, sqft:'720', description:'Pool parties every weekend.', reviews:{ location:88, value:88, amenities:92, management:88, noise:75 }, address:'303 Flats Dr, Knoxville TN' },
+  { name:'The Davy', price:999, bedrooms:'2 Bed', amenities:['Gym','Laundry','Game Room'], distanceMi:0.5, distance:'0.5 mi', image:'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800', stars:4.6, sqft:'750-980', description:'Game room always packed.', reviews:{ location:88, value:86, amenities:90, management:88, noise:74 }, address:'1500 Davy St, Knoxville TN' },
+  { name:'The Heights', price:949, bedrooms:'1 Bed', amenities:['Pool','Parking','Study Room'], distanceMi:0.6, distance:'0.6 mi', image:'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800', stars:4.6, sqft:'720', description:'Pool parties every weekend.', reviews:{ location:88, value:88, amenities:92, management:88, noise:75 }, address:'1800 Heights Dr, Knoxville TN' },
+  { name:'Knox Ridge', price:729, bedrooms:'3+ Bed', amenities:['Parking','Laundry'], distanceMi:2.0, distance:'2.0 mi', image:'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800', stars:4.2, sqft:'900+', description:'Super affordable.', reviews:{ location:70, value:99, amenities:78, management:76, noise:85 }, address:'5200 Ridge Rd, Knoxville TN' },
+  { name:'The Woodlands', price:879, bedrooms:'2 Bed', amenities:['Gym','Parking','Pet Friendly'], distanceMi:1.2, distance:'1.2 mi', image:'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800', stars:4.4, sqft:'680-920', description:'Quiet wooded setting.', reviews:{ location:80, value:92, amenities:84, management:84, noise:88 }, address:'2800 Woodland Dr, Knoxville TN' },
+  { name:'The Mark', price:1129, bedrooms:'1 Bed', amenities:['Pool','Gym','Study Room','Furnished'], distanceMi:0.4, distance:'0.4 mi', image:'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800', stars:4.7, sqft:'700', description:'Luxury feel.', reviews:{ location:92, value:80, amenities:96, management:90, noise:72 }, address:'1400 Mark Ave, Knoxville TN' },
+  { name:'Ever', price:1029, bedrooms:'Studio', amenities:['Pool','Gym','Laundry'], distanceMi:0.5, distance:'0.5 mi', image:'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800', stars:4.5, sqft:'530', description:'Cozy studio.', reviews:{ location:86, value:86, amenities:90, management:88, noise:80 }, address:'1100 Ever Ln, Knoxville TN' },
+  { name:'Livano', price:949, bedrooms:'2 Bed', amenities:['Gym','Laundry','Furnished'], distanceMi:0.8, distance:'0.8 mi', image:'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800', stars:4.5, sqft:'660-900', description:'Fully furnished.', reviews:{ location:84, value:90, amenities:88, management:86, noise:82 }, address:'2300 Livano Blvd, Knoxville TN' },
+  { name:'Flagship Kerns Apartments', price:829, bedrooms:'2 Bed', amenities:['Parking','Laundry','Gym'], distanceMi:1.0, distance:'1.0 mi', image:'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800', stars:4.4, sqft:'640-880', description:'Solid value.', reviews:{ location:80, value:94, amenities:82, management:82, noise:86 }, address:'1900 Kerns Ave, Knoxville TN' },
+  { name:'Nova Knoxville', price:1079, bedrooms:'1 Bed', amenities:['Pool','Gym','Study Room'], distanceMi:0.5, distance:'0.5 mi', image:'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800', stars:4.6, sqft:'690', description:'Modern building.', reviews:{ location:88, value:84, amenities:92, management:88, noise:76 }, address:'1300 Nova Dr, Knoxville TN' },
+  { name:'Quarry Trail Student Apartments', price:699, bedrooms:'3+ Bed', amenities:['Parking','Laundry','Pet Friendly'], distanceMi:2.1, distance:'2.1 mi', image:'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800', stars:4.2, sqft:'1100+', description:'Cheapest for 4-bed.', reviews:{ location:72, value:98, amenities:80, management:78, noise:82 }, address:'4500 Quarry Rd, Knoxville TN' },
+  { name:'Union Knoxville', price:1179, bedrooms:'Studio', amenities:['Pool','Gym','Game Room','Furnished'], distanceMi:0.3, distance:'0.3 mi', image:'https://images.unsplash.com/photo-1493809842364-78817add7ffb?w=800', stars:4.7, sqft:'550', description:'Best location.', reviews:{ location:96, value:78, amenities:94, management:90, noise:74 }, address:'1200 Union Ave, Knoxville TN' },
+];
+let v4FilteredApartments = [];
+
+// ============ NAVIGATION ============
+let currentScreen = 'screen-splash';
+
+function goTo(screenId) {
+  const current = document.getElementById(currentScreen);
+  const next = document.getElementById(screenId);
+  if (current) { current.classList.remove('active'); current.classList.add('hidden'); }
+  if (next) { next.classList.remove('hidden'); next.classList.add('active'); }
+  currentScreen = screenId;
+
+  // Trigger animations when entering dashboard
+  if (screenId === 'screen-dashboard') {
+    renderV4Results();
+    setTimeout(animateCompBars, 200);
+    setTimeout(animateGauges, 300);
+  }
+
+  lucide.createIcons();
+}
+
+function enterDashboard() {
+  goTo('screen-dashboard');
+}
+
+const v4NavTabs = ['home','sublease','roommates','map','assist','reviews'];
+function v4RenderNav(containerId, activeTab) {
+  const c = document.getElementById(containerId);
+  if (!c) return;
+  const icons = { home:'layout-dashboard', sublease:'calendar', roommates:'users', map:'map-pin', assist:'shield', reviews:'message-square' };
+  c.innerHTML = v4NavTabs.map(t => `<div class="nav-item ${t===activeTab?'active':''} flex flex-col items-center min-w-[52px]" onclick="switchNav(this,'${t}')"><i data-lucide="${icons[t]}" class="w-4 h-4 ${t===activeTab?'text-teal':'text-zinc-500'}"></i><div class="nav-dot"></div></div>`).join('');
+  lucide.createIcons();
+}
+function switchNav(el, section) {
+  const screenMap = { home:'screen-dashboard', sublease:'screen-sublease', roommates:'screen-roommates', map:'screen-map', assist:'screen-assist', reviews:'screen-reviews' };
+  goTo(screenMap[section] || 'screen-dashboard');
+  const containerId = 'nav-v4-' + section;
+  if (section !== 'home' && document.getElementById(containerId)) {
+    v4RenderNav(containerId, section);
+  }
+  lucide.createIcons();
+}
+
+// ============ FILTERS ============
+let filtersOpen = true;
+
+function toggleFilters() {
+  const body = document.getElementById('filters-body');
+  const chevron = document.getElementById('filter-chevron');
+  filtersOpen = !filtersOpen;
+  if (filtersOpen) {
+    body.classList.remove('collapsed');
+    chevron.style.transform = 'rotate(0deg)';
+  } else {
+    body.classList.add('collapsed');
+    chevron.style.transform = 'rotate(180deg)';
+  }
+}
+
+function setBed(el) {
+  el.parentElement.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderV4Results();
+}
+
+function setDist(el) {
+  el.parentElement.querySelectorAll('.seg-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderV4Results();
+}
+
+function togglePill(el) {
+  el.classList.toggle('active');
+  renderV4Results();
+}
+
+function updateBudget() {
+  const min = document.getElementById('budget-min').value;
+  const max = document.getElementById('budget-max').value;
+  document.getElementById('budget-display').textContent = `$${parseInt(min).toLocaleString()} — $${parseInt(max).toLocaleString()}`;
+  renderV4Results();
+}
+
+function getV4Filters() {
+  const bedEl = document.querySelector('#bed-filter .seg-btn.active');
+  const bedVal = bedEl ? bedEl.dataset.val : 'S';
+  const bedMap = { 'S':'Studio', '1':'1 Bed', '2':'2 Bed', '3':'3+ Bed', '4+':'3+ Bed' };
+  const wantedBed = bedMap[bedVal] || null;
+  const budgetMin = parseInt(document.getElementById('budget-min')?.value || 600);
+  const budgetMax = parseInt(document.getElementById('budget-max')?.value || 1200);
+  const amenities = Array.from(document.querySelectorAll('#amenity-filter .filter-pill.active')).map(p => p.dataset.amenity).filter(Boolean);
+  const distEl = document.querySelector('#dist-filter .seg-btn.active');
+  const distVal = distEl ? distEl.dataset.val : 'walk';
+  const distMax = distVal === 'walk' ? 0.5 : distVal === 'drive' ? 1.5 : 999;
+  return { wantedBed, budgetMin, budgetMax, amenities, distMax };
+}
+
+function computeFilteredResultsV4() {
+  const f = getV4Filters();
+  let filtered = APARTMENTS_DATA.filter(apt => {
+    if (f.wantedBed && apt.bedrooms !== f.wantedBed) return false;
+    if (apt.price < f.budgetMin - 100 || apt.price > f.budgetMax + 200) return false;
+    if (apt.distanceMi > f.distMax) return false;
+    return true;
+  });
+  if (filtered.length === 0) filtered = APARTMENTS_DATA;
+  filtered = filtered.map(apt => {
+    const matchAm = apt.amenities.filter(a => f.amenities.includes(a)).length;
+    let score = 70 + matchAm * 8;
+    if (apt.price <= f.budgetMax) score += 10;
+    score += apt.distanceMi <= 0.5 ? 8 : apt.distanceMi <= 1 ? 4 : 0;
+    return { ...apt, match: Math.min(99, Math.round(score)) };
+  });
+  filtered.sort((a,b) => b.match - a.match);
+  return filtered.slice(0, 6);
+}
+
+function renderV4Results() {
+  v4FilteredApartments = computeFilteredResultsV4();
+  const results = v4FilteredApartments;
+  document.getElementById('result-count').textContent = `Showing ${results.length} of ${APARTMENTS_DATA.length}`;
+
+  const cardsEl = document.getElementById('result-cards');
+  cardsEl.style.opacity = '0.4';
+  cardsEl.style.transition = 'all 0.2s ease';
+  setTimeout(() => {
+    cardsEl.innerHTML = results.map((apt, i) => {
+      const pricePct = Math.round((apt.price / 1600) * 100);
+      const starPct = Math.round((apt.stars / 5) * 100);
+      const amenityTags = apt.amenities.slice(0, 3).map(a => `<span class="text-[10px] px-1.5 py-0.5 rounded bg-tealGlow text-teal border border-teal/20">${a}</span>`).join('');
+      return `<div class="tilt-card" onmousemove="tilt(event, this)" onmouseleave="resetTilt(this)" ontouchmove="tiltTouch(event, this)" ontouchend="resetTilt(this)">
+            <div class="card-inner bg-card border border-border rounded-2xl p-4 cursor-pointer" onclick="openDetail(${i})">
+              <div class="flex gap-3">
+                <div class="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0">
+                  <img src="${apt.image}" class="w-full h-full object-cover" alt="${apt.name}">
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-start justify-between mb-1">
+                    <h3 class="text-white text-sm font-semibold">${apt.name}</h3>
+                    <div class="relative w-10 h-10 flex-shrink-0">
+                      <svg viewBox="0 0 36 36" class="w-full h-full -rotate-90">
+                        <circle cx="18" cy="18" r="15" fill="none" stroke="#27272A" stroke-width="3"/>
+                        <circle cx="18" cy="18" r="15" fill="none" stroke="#14B8A6" stroke-width="3" stroke-linecap="round" stroke-dasharray="94.2" stroke-dashoffset="${94.2 - (apt.match/100)*94.2}" class="gauge-arc"/>
+                      </svg>
+                      <span class="absolute inset-0 flex items-center justify-center text-[9px] font-data font-bold text-teal">${apt.match}</span>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-2 mb-1.5">
+                    <span class="text-white font-data text-lg font-bold">$${apt.price.toLocaleString()}</span>
+                    <span class="text-zinc-500 text-[10px]">/mo</span>
+                  </div>
+                  <div class="flex items-center gap-1 mb-2">
+                    <div class="flex gap-0.5">${[1,2,3,4,5].map(s => `<svg class="w-3 h-3 ${s<=apt.stars?'text-amber-400':'text-zinc-600'}" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>`).join('')}</div>
+                    <span class="text-zinc-500 text-[10px] font-data">${apt.stars}</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">${amenityTags}</div>
+                </div>
+              </div>
+              <div class="flex items-center justify-between mt-3 pt-3 border-t border-zinc-800">
+                <button class="text-[11px] text-teal font-medium flex items-center gap-1 hover:text-white transition-colors" onclick="event.stopPropagation(); openDetail(${i})">
+                  <i data-lucide="expand" class="w-3 h-3"></i> Details
+                </button>
+                <button class="w-7 h-7 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center hover:border-teal transition-colors" onclick="event.stopPropagation(); toggleAlert(this)">
+                  <i data-lucide="bell" class="w-3.5 h-3.5 text-zinc-400"></i>
+                </button>
+              </div>
+            </div>
+          </div>`;
+    }).join('');
+    const chartEl = document.getElementById('comparison-chart');
+    chartEl.innerHTML = results.map(apt => {
+      const pricePct = Math.round((apt.price / 1600) * 100);
+      const starPct = Math.round((apt.stars / 5) * 100);
+      return `<div class="comp-row">
+                <div class="flex items-center justify-between mb-1">
+                  <span class="text-xs text-white font-medium">${apt.name}</span>
+                  <span class="text-[10px] text-zinc-500 font-data">${apt.match}%</span>
+                </div>
+                <div class="space-y-1">
+                  <div class="h-1.5 bg-zinc-800 rounded-full overflow-hidden"><div class="comp-bar h-full bg-teal rounded-full" style="width: 0%" data-target="${apt.match}"></div></div>
+                  <div class="h-1.5 bg-zinc-800 rounded-full overflow-hidden"><div class="comp-bar h-full bg-zinc-500 rounded-full" style="width: 0%" data-target="${pricePct}"></div></div>
+                  <div class="h-1.5 bg-zinc-800 rounded-full overflow-hidden"><div class="comp-bar h-full bg-amber-500 rounded-full" style="width: 0%" data-target="${starPct}"></div></div>
+                </div>
+              </div>`;
+    }).join('');
+    cardsEl.style.opacity = '1';
+    lucide.createIcons();
+    setTimeout(animateCompBars, 100);
+  }, 200);
+}
+
+// ============ MAP TOOLTIP (v4) ============
+function v4ShowTooltip(name, desc) {
+  const t = document.getElementById('v4-map-tooltip');
+  document.getElementById('v4-tooltip-name').textContent = name;
+  document.getElementById('v4-tooltip-desc').textContent = desc;
+  t.classList.remove('hidden');
+}
+function v4HideTooltip() { document.getElementById('v4-map-tooltip').classList.add('hidden'); }
+function v4UpdateTooltip(e) {
+  const t = document.getElementById('v4-map-tooltip');
+  if (t && !t.classList.contains('hidden')) {
+    const map = document.getElementById('v4-map');
+    const rect = map.getBoundingClientRect();
+    t.style.left = (e.clientX - rect.left + 15) + 'px';
+    t.style.top = (e.clientY - rect.top + 15) + 'px';
+  }
+}
+
+// ============ 3D TILT ============
+function tilt(e, card) {
+  const rect = card.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  const centerX = rect.width / 2;
+  const centerY = rect.height / 2;
+  const rotateX = (y - centerY) / centerY * -6;
+  const rotateY = (x - centerX) / centerX * 6;
+  card.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+}
+
+function tiltTouch(e, card) {
+  if (e.touches.length === 0) return;
+  const touch = e.touches[0];
+  const rect = card.getBoundingClientRect();
+  const x = touch.clientX - rect.left;
+  const y = touch.clientY - rect.top;
+  const centerX = rect.width / 2;
+  const centerY = rect.height / 2;
+  const rotateX = (y - centerY) / centerY * -4;
+  const rotateY = (x - centerX) / centerX * 4;
+  card.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.01)`;
+}
+
+function resetTilt(card) {
+  card.style.transform = 'perspective(800px) rotateX(0deg) rotateY(0deg) scale(1)';
+}
+
+// ============ COMPARISON BARS ANIMATION ============
+function animateCompBars() {
+  document.querySelectorAll('.comp-bar').forEach(bar => {
+    const target = bar.getAttribute('data-target');
+    bar.style.width = target + '%';
+  });
+}
+
+// ============ GAUGE ANIMATION ============
+function animateGauges() {
+  document.querySelectorAll('.gauge-arc').forEach(arc => {
+    const target = parseFloat(arc.getAttribute('data-target'));
+    arc.style.strokeDashoffset = target;
+  });
+}
+
+// ============ DETAIL BOTTOM SHEET ============
+function openDetail(index) {
+  const apt = (v4FilteredApartments && v4FilteredApartments[index]) || APARTMENTS_DATA[index] || APARTMENTS_DATA[0];
+  const sheet = document.getElementById('bottom-sheet');
+  const overlay = document.getElementById('sheet-overlay');
+  const content = document.getElementById('sheet-content');
+
+  // Build review bars
+  let reviewBars = '';
+  for (const [key, val] of Object.entries(apt.reviews)) {
+    reviewBars += `
+      <div class="flex items-center gap-3 mb-2">
+        <span class="text-zinc-500 text-[11px] w-20 text-right capitalize">${key}</span>
+        <div class="flex-1 h-2 bg-zinc-800 rounded-full overflow-hidden">
+          <div class="h-full bg-teal rounded-full transition-all duration-700" style="width: ${val}%"></div>
+        </div>
+        <span class="text-zinc-400 text-[11px] font-data w-8">${val}%</span>
+      </div>
+    `;
+  }
+
+  // Build stars
+  let starsHtml = '';
+  for (let i = 0; i < 5; i++) {
+    const color = i < apt.stars ? 'text-amber-400' : 'text-zinc-600';
+    starsHtml += `<svg class="w-4 h-4 ${color}" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>`;
+  }
+
+  content.innerHTML = `
+    <!-- Photo -->
+    <div class="w-full h-48 rounded-2xl overflow-hidden mb-4">
+      <img src="${apt.image}" class="w-full h-full object-cover" alt="${apt.name}">
+    </div>
+
+    <!-- Header -->
+    <div class="flex items-start justify-between mb-4">
+      <div>
+        <h3 class="text-white text-xl font-bold">${apt.name}</h3>
+        <p class="text-zinc-500 text-xs mt-0.5">${apt.address}</p>
+      </div>
+      <div class="text-right">
+        <p class="text-teal font-data text-2xl font-bold">$${apt.price.toLocaleString()}</p>
+        <p class="text-zinc-500 text-[10px]">per month</p>
+      </div>
+    </div>
+
+    <!-- Stats grid -->
+    <div class="grid grid-cols-4 gap-2 mb-5">
+      <div class="bg-zinc-800/50 rounded-xl p-2.5 text-center border border-zinc-700/50">
+        <p class="text-teal font-data text-sm font-bold">${apt.match}%</p>
+        <p class="text-zinc-500 text-[9px] uppercase tracking-wider mt-0.5">Match</p>
+      </div>
+      <div class="bg-zinc-800/50 rounded-xl p-2.5 text-center border border-zinc-700/50">
+        <p class="text-white font-data text-sm font-bold">${apt.distance}</p>
+        <p class="text-zinc-500 text-[9px] uppercase tracking-wider mt-0.5">Distance</p>
+      </div>
+      <div class="bg-zinc-800/50 rounded-xl p-2.5 text-center border border-zinc-700/50">
+        <p class="text-white font-data text-sm font-bold">${apt.beds}</p>
+        <p class="text-zinc-500 text-[9px] uppercase tracking-wider mt-0.5">Beds</p>
+      </div>
+      <div class="bg-zinc-800/50 rounded-xl p-2.5 text-center border border-zinc-700/50">
+        <p class="text-white font-data text-sm font-bold">${apt.sqft}</p>
+        <p class="text-zinc-500 text-[9px] uppercase tracking-wider mt-0.5">Sq Ft</p>
+      </div>
+    </div>
+
+    <!-- Rating -->
+    <div class="flex items-center gap-2 mb-4">
+      <div class="flex gap-0.5">${starsHtml}</div>
+      <span class="text-zinc-400 text-sm font-data">${apt.rating}</span>
+      <span class="text-zinc-600 text-xs">(127 reviews)</span>
+    </div>
+
+    <!-- Description -->
+    <p class="text-zinc-400 text-sm leading-relaxed mb-5">${apt.description}</p>
+
+    <!-- Amenities -->
+    <div class="mb-5">
+      <h4 class="text-zinc-500 text-[10px] uppercase tracking-widest mb-2">Amenities</h4>
+      <div class="flex flex-wrap gap-2">
+        ${apt.amenities.map(a => `<span class="px-3 py-1.5 text-xs rounded-lg bg-tealGlow text-teal border border-teal/20">${a}</span>`).join('')}
+      </div>
+    </div>
+
+    <!-- Review breakdown -->
+    <div class="mb-5">
+      <h4 class="text-zinc-500 text-[10px] uppercase tracking-widest mb-3">Review Breakdown</h4>
+      ${reviewBars}
+    </div>
+
+    <!-- Alert toggle -->
+    <div class="flex items-center justify-between bg-zinc-800/50 rounded-xl p-4 border border-zinc-700/50 mb-4">
+      <div>
+        <p class="text-white text-sm font-medium">Price Alert</p>
+        <p class="text-zinc-500 text-xs">Get notified when price drops</p>
+      </div>
+      <div class="toggle-track" onclick="this.classList.toggle('on')">
+        <div class="toggle-thumb"></div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex gap-3">
+      <button class="flex-1 py-3 bg-teal text-surface font-semibold text-sm rounded-xl" style="box-shadow: 0 0 20px rgba(20,184,166,0.2);">Visit Website</button>
+      <button class="py-3 px-5 bg-zinc-800 border border-zinc-700 text-zinc-300 text-sm rounded-xl" onclick="closeDetail()">Close</button>
+    </div>
+  `;
+
+  sheet.classList.add('open');
+  overlay.classList.add('open');
+  lucide.createIcons();
+}
+
+function closeDetail() {
+  document.getElementById('bottom-sheet').classList.remove('open');
+  document.getElementById('sheet-overlay').classList.remove('open');
+}
+
+// ============ ALERT TOGGLE ============
+function toggleAlert(btn) {
+  const icon = btn.querySelector('[data-lucide]');
+  if (btn.classList.contains('alert-on')) {
+    btn.classList.remove('alert-on');
+    btn.style.borderColor = '#3F3F46';
+    btn.style.background = '#27272A';
+  } else {
+    btn.classList.add('alert-on');
+    btn.style.borderColor = '#14B8A6';
+    btn.style.background = 'rgba(20,184,166,0.1)';
+  }
+}
+
+// ============ INIT ============
+document.addEventListener('DOMContentLoaded', () => {
+  lucide.createIcons();
+});
+</script>
+
+</body>
+</html>
