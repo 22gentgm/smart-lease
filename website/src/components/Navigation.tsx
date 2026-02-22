@@ -159,8 +159,8 @@ export default function Navigation() {
 
       {/* Mobile bottom tab bar */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-ink/5 bg-white/90 backdrop-blur-md md:hidden">
-        <div className="mx-auto flex h-16 max-w-lg items-center justify-around px-2">
-          {links.slice(0, 6).map(({ href, label, icon: Icon }) => {
+        <div className="mx-auto flex h-16 max-w-lg items-center justify-around px-1">
+          {links.map(({ href, label, icon: Icon }) => {
             const active = isActive(href);
             return (
               <Link
