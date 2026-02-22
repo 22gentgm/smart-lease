@@ -3,6 +3,7 @@ import { Playfair_Display, Space_Grotesk } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import Navigation from "@/components/Navigation";
+import { AuthProvider } from "@/lib/auth-context";
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -30,8 +31,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${playfair.variable} ${spaceGrotesk.variable}`}>
-        <Navigation />
-        {children}
+        <AuthProvider>
+          <Navigation />
+          {children}
+        </AuthProvider>
         <Analytics />
       </body>
     </html>

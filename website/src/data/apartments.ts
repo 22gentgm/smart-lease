@@ -41,7 +41,7 @@ export const APARTMENTS: Apartment[] = [
     ],
     rating: 0,
     reviewCount: 0,
-    distanceMiles: 0.4,
+    distanceMiles: 0.1,
     bedTypes: [
       { beds: "Studio", baths: "1", price: 1199 },
       { beds: "2 Bed", baths: "1", price: 1419 },
@@ -71,7 +71,7 @@ export const APARTMENTS: Apartment[] = [
     ],
     rating: 3.0,
     reviewCount: 7,
-    distanceMiles: 0.7,
+    distanceMiles: 0.5,
     bedTypes: [
       { beds: "1 Bed", baths: "1", price: 1899 },
       { beds: "2 Bed", baths: "2", price: 1199 },
@@ -101,7 +101,7 @@ export const APARTMENTS: Apartment[] = [
     ],
     rating: 4.6,
     reviewCount: 561,
-    distanceMiles: 0.3,
+    distanceMiles: 0.2,
     bedTypes: [
       { beds: "3 Bed", baths: "3", price: 930 },
       { beds: "4 Bed", baths: "4", price: 885 },
@@ -128,7 +128,7 @@ export const APARTMENTS: Apartment[] = [
     ],
     rating: 3.5,
     reviewCount: 252,
-    distanceMiles: 0.2,
+    distanceMiles: 0.1,
     bedTypes: [
       { beds: "1 Bed", baths: "1", price: 1790 },
       { beds: "2 Bed", baths: "2", price: 1380 },
@@ -159,7 +159,7 @@ export const APARTMENTS: Apartment[] = [
     ],
     rating: 0,
     reviewCount: 0,
-    distanceMiles: 1.1,
+    distanceMiles: 1.2,
     bedTypes: [
       { beds: "Studio", baths: "1", price: 1571, soldOut: true },
       { beds: "1 Bed", baths: "1", price: 1843 },
@@ -190,7 +190,7 @@ export const APARTMENTS: Apartment[] = [
     ],
     rating: 3.0,
     reviewCount: 6,
-    distanceMiles: 0.9,
+    distanceMiles: 0.5,
     bedTypes: [
       { beds: "1 Bed", baths: "1", price: 1615 },
       { beds: "2 Bed", baths: "1", price: 1019 },
@@ -219,7 +219,7 @@ export const APARTMENTS: Apartment[] = [
     ],
     rating: 3.9,
     reviewCount: 184,
-    distanceMiles: 0.5,
+    distanceMiles: 0.3,
     bedTypes: [
       { beds: "2 Bed", baths: "2", price: 1500 },
       { beds: "3 Bed", baths: "3", price: 1515 },
@@ -246,7 +246,7 @@ export const APARTMENTS: Apartment[] = [
     ],
     rating: 3.8,
     reviewCount: 45,
-    distanceMiles: 0.2,
+    distanceMiles: 0.1,
     bedTypes: [
       { beds: "3 Bed", baths: "2", price: 1359 },
       { beds: "4 Bed", baths: "4", price: 1340 },
@@ -273,7 +273,7 @@ export const APARTMENTS: Apartment[] = [
     ],
     rating: 3.5,
     reviewCount: 15,
-    distanceMiles: 1.8,
+    distanceMiles: 0.3,
     bedTypes: [
       { beds: "1 Bed", baths: "1", price: 1030 },
       { beds: "2 Bed", baths: "1", price: 799 },
@@ -300,7 +300,7 @@ export const APARTMENTS: Apartment[] = [
     ],
     rating: 4.8,
     reviewCount: 13,
-    distanceMiles: 0.6,
+    distanceMiles: 0.7,
     bedTypes: [
       { beds: "1 Bed", baths: "1", price: 1799 },
       { beds: "2 Bed", baths: "2", price: 1175 },
@@ -330,7 +330,7 @@ export const APARTMENTS: Apartment[] = [
     ],
     rating: 4.0,
     reviewCount: 1,
-    distanceMiles: 0.5,
+    distanceMiles: 0.8,
     bedTypes: [
       { beds: "1 Bed", baths: "1", price: 1879 },
       { beds: "2 Bed", baths: "2", price: 1309 },
@@ -387,7 +387,7 @@ export const APARTMENTS: Apartment[] = [
     ],
     rating: 3.5,
     reviewCount: 38,
-    distanceMiles: 3.0,
+    distanceMiles: 2.2,
     bedTypes: [
       { beds: "4 Bed", baths: "4", price: 999 },
       { beds: "5 Bed", baths: "5", price: 979 },
@@ -443,7 +443,7 @@ export const APARTMENTS: Apartment[] = [
     ],
     rating: 0,
     reviewCount: 0,
-    distanceMiles: 0.4,
+    distanceMiles: 0.8,
     bedTypes: [
       { beds: "Studio", baths: "1", price: 1499 },
       { beds: "1 Bed", baths: "1", price: 1669 },
@@ -476,7 +476,7 @@ export const APARTMENTS: Apartment[] = [
     ],
     rating: 0,
     reviewCount: 0,
-    distanceMiles: 0.5,
+    distanceMiles: 0.1,
     bedTypes: [
       { beds: "1 Bed", baths: "1", price: 1735, soldOut: true },
       { beds: "2 Bed", baths: "2", price: 1775 },
@@ -506,7 +506,7 @@ export const APARTMENTS: Apartment[] = [
     ],
     rating: 4.0,
     reviewCount: 1,
-    distanceMiles: 0.8,
+    distanceMiles: 1.4,
     bedTypes: [
       { beds: "Studio", baths: "1", price: 1905 },
       { beds: "1 Bed", baths: "1", price: 1819 },
@@ -563,7 +563,7 @@ export const APARTMENTS: Apartment[] = [
     ],
     rating: 4.5,
     reviewCount: 13,
-    distanceMiles: 0.5,
+    distanceMiles: 0.1,
     bedTypes: [
       { beds: "1 Bed", baths: "1", price: 1790 },
       { beds: "2 Bed", baths: "2", price: 1485 },
@@ -592,7 +592,7 @@ export const APARTMENTS: Apartment[] = [
     ],
     rating: 3.8,
     reviewCount: 19,
-    distanceMiles: 3.8,
+    distanceMiles: 2.9,
     bedTypes: [
       { beds: "1 Bed", baths: "1", price: 1485, soldOut: true },
       { beds: "2 Bed", baths: "2", price: 1095, soldOut: true },
@@ -622,7 +622,7 @@ export const APARTMENTS: Apartment[] = [
     ],
     rating: 4.5,
     reviewCount: 161,
-    distanceMiles: 0.3,
+    distanceMiles: 0.1,
     bedTypes: [
       { beds: "Studio", baths: "1", price: 1800 },
       { beds: "1 Bed", baths: "1", price: 1890 },
