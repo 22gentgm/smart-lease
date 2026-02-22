@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Home,
-  ClipboardList,
   Search,
   Star,
   Users,
@@ -19,7 +18,6 @@ import AuthModal from "./AuthModal";
 
 const links = [
   { href: "/", label: "Home", icon: Home },
-  { href: "/quiz", label: "Quiz", icon: ClipboardList },
   { href: "/explore", label: "Explore", icon: Search },
   { href: "/subleases", label: "Subleases", icon: Repeat },
   { href: "/lease-help", label: "Lease Help", icon: FileText },
