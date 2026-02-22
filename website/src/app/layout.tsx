@@ -21,6 +21,13 @@ export const metadata: Metadata = {
   title: "SmartLease — UT Knoxville Student Housing",
   description:
     "Find your perfect student apartment near UT Knoxville. Compare prices, amenities, and locations across 20+ properties — matched to what matters most to you.",
+  manifest: "/manifest.json",
+  themeColor: "#FF8200",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "SmartLease",
+  },
 };
 
 export default function RootLayout({
@@ -30,12 +37,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+      </head>
       <body className={`${playfair.variable} ${spaceGrotesk.variable}`}>
         <AuthProvider>
           <Navigation />
           {children}
         </AuthProvider>
         <Analytics />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js')}`,
+          }}
+        />
       </body>
     </html>
   );

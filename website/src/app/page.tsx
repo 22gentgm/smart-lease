@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { Sparkles, Users, ShieldCheck, ArrowRight } from 'lucide-react';
+import { Sparkles, Users, ShieldCheck, MapPin, ArrowRight } from 'lucide-react';
+import InstallButton from '@/components/InstallButton';
 
 const features = [
   {
@@ -7,6 +8,13 @@ const features = [
     title: 'Smart Match',
     description:
       'Answer 5 quick questions and get matched with your top apartments.',
+  },
+  {
+    icon: MapPin,
+    title: 'Interactive Map',
+    description:
+      'See every apartment pinned on a map with prices and details.',
+    href: '/map',
   },
   {
     icon: Users,
@@ -52,14 +60,24 @@ export default function Home() {
             on your preferences, budget, and lifestyle.
           </p>
 
-          <div className="mt-10 flex flex-col items-center gap-3">
-            <Link
-              href="/quiz"
-              className="inline-flex items-center gap-2 bg-[#FF8200] hover:bg-[#e67400] text-white text-sm font-semibold tracking-[0.12em] uppercase px-8 py-4 rounded-full transition-all duration-200 shadow-lg shadow-[#FF8200]/25 hover:shadow-xl hover:shadow-[#FF8200]/30 hover:-translate-y-0.5"
-            >
-              Take the Quiz
-              <ArrowRight size={16} strokeWidth={2.5} />
-            </Link>
+          <div className="mt-10 flex flex-col items-center gap-4">
+            <div className="flex flex-wrap justify-center gap-3">
+              <Link
+                href="/quiz"
+                className="inline-flex items-center gap-2 bg-[#FF8200] hover:bg-[#e67400] text-white text-sm font-semibold tracking-[0.12em] uppercase px-8 py-4 rounded-full transition-all duration-200 shadow-lg shadow-[#FF8200]/25 hover:shadow-xl hover:shadow-[#FF8200]/30 hover:-translate-y-0.5"
+              >
+                Take the Quiz
+                <ArrowRight size={16} strokeWidth={2.5} />
+              </Link>
+              <Link
+                href="/map"
+                className="inline-flex items-center gap-2 border-2 border-[#FF8200] text-[#FF8200] hover:bg-[#FF8200] hover:text-white text-sm font-semibold tracking-[0.12em] uppercase px-8 py-4 rounded-full transition-all duration-200 hover:-translate-y-0.5"
+              >
+                <MapPin size={16} strokeWidth={2.5} />
+                View Map
+              </Link>
+              <InstallButton />
+            </div>
             <p className="text-xs text-[#6B6B6B] tracking-wide">
               Takes 30 seconds. No account needed.
             </p>
@@ -77,14 +95,11 @@ export default function Home() {
             Everything you need, one place
           </h2>
 
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             {features.map((feature) => {
               const Icon = feature.icon;
-              return (
-                <div
-                  key={feature.title}
-                  className="group rounded-2xl border border-[#1A1A1A]/6 bg-[#FAF8F5] p-8 transition-all duration-200 hover:border-[#FF8200]/30 hover:shadow-lg hover:shadow-[#FF8200]/5"
-                >
+              const content = (
+                <>
                   <div className="w-12 h-12 rounded-xl bg-[#FF8200]/10 flex items-center justify-center mb-5 group-hover:bg-[#FF8200]/15 transition-colors duration-200">
                     <Icon size={24} className="text-[#FF8200]" />
                   </div>
@@ -94,6 +109,25 @@ export default function Home() {
                   <p className="text-sm leading-relaxed text-[#4B4B4B]">
                     {feature.description}
                   </p>
+                </>
+              );
+              if (feature.href) {
+                return (
+                  <Link
+                    key={feature.title}
+                    href={feature.href}
+                    className="group rounded-2xl border border-[#1A1A1A]/6 bg-[#FAF8F5] p-8 transition-all duration-200 hover:border-[#FF8200]/30 hover:shadow-lg hover:shadow-[#FF8200]/5"
+                  >
+                    {content}
+                  </Link>
+                );
+              }
+              return (
+                <div
+                  key={feature.title}
+                  className="group rounded-2xl border border-[#1A1A1A]/6 bg-[#FAF8F5] p-8 transition-all duration-200 hover:border-[#FF8200]/30 hover:shadow-lg hover:shadow-[#FF8200]/5"
+                >
+                  {content}
                 </div>
               );
             })}
