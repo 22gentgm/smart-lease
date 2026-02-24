@@ -51,6 +51,49 @@ const AVATAR_COLORS = [
   "bg-pink-400", "bg-teal-400", "bg-indigo-400", "bg-amber-400",
 ];
 
+const DEMO_PROFILES: RoommateProfile[] = [
+  {
+    id: "demo-1", user_id: "demo-1",
+    sleep_schedule: "Night Owl", cleanliness: 4, noise: 3, guests: "Sometimes",
+    study_habits: "Both", bio: "Junior transfer from Nashville. Love live music, hiking, and cooking. Looking for a chill roommate who keeps things clean but isn't uptight about it.",
+    budget_min: 700, budget_max: 1100, move_in: "Fall 2026", bed_preference: "2 Bed",
+    social_tags: ["Drinks socially", "No smoking"], preferred_apartment_index: 3, active: true,
+    profile: { first_name: "Jake", last_name: "Mitchell", email: "jmitch@vols.utk.edu", major: "Finance", class_year: "Junior", gender: "Male" },
+  },
+  {
+    id: "demo-2", user_id: "demo-2",
+    sleep_schedule: "Early Bird", cleanliness: 5, noise: 2, guests: "Rarely",
+    study_habits: "Library", bio: "Pre-med and pretty focused during the week. Weekends I'm down to hang. Need quiet space for studying but love a good game day.",
+    budget_min: 800, budget_max: 1200, move_in: "Fall 2026", bed_preference: "2 Bed",
+    social_tags: ["No smoking", "No alcohol"], preferred_apartment_index: 0, active: true,
+    profile: { first_name: "Priya", last_name: "Sharma", email: "psharma@vols.utk.edu", major: "Biology", class_year: "Sophomore", gender: "Female" },
+  },
+  {
+    id: "demo-3", user_id: "demo-3",
+    sleep_schedule: "Flexible", cleanliness: 3, noise: 4, guests: "Often",
+    study_habits: "Home", bio: "I'm in a band and pretty social. Always down to meet new people. I keep my stuff in my room but common areas might get lively on weekends.",
+    budget_min: 600, budget_max: 950, move_in: "Fall 2026", bed_preference: "4 Bed",
+    social_tags: ["Drinks socially", "420 friendly", "Smokes socially"], preferred_apartment_index: 12, active: true,
+    profile: { first_name: "Tyler", last_name: "Brooks", email: "tbrooks@vols.utk.edu", major: "Communications", class_year: "Senior", gender: "Male" },
+  },
+  {
+    id: "demo-4", user_id: "demo-4",
+    sleep_schedule: "Early Bird", cleanliness: 4, noise: 2, guests: "Sometimes",
+    study_habits: "Both", bio: "Architecture major so I'm always in studio. Clean and organized. Love my cat, so need a pet-friendly place. Looking for someone respectful of shared space.",
+    budget_min: 750, budget_max: 1100, move_in: "Fall 2026", bed_preference: "2 Bed",
+    social_tags: ["Has pets", "No smoking"], preferred_apartment_index: 14, active: true,
+    profile: { first_name: "Amara", last_name: "Johnson", email: "ajohnson@vols.utk.edu", major: "Architecture", class_year: "Junior", gender: "Female" },
+  },
+  {
+    id: "demo-5", user_id: "demo-5",
+    sleep_schedule: "Night Owl", cleanliness: 3, noise: 3, guests: "Sometimes",
+    study_habits: "Home", bio: "CS major and gamer. Pretty chill and keep to myself mostly. I cook a lot and happy to share. Just need good wifi and a quiet-ish space.",
+    budget_min: 500, budget_max: 900, move_in: "Fall 2026", bed_preference: "3 Bed",
+    social_tags: ["No smoking", "Drinks socially"], preferred_apartment_index: 7, active: true,
+    profile: { first_name: "Marcus", last_name: "Davis", email: "mdavis@vols.utk.edu", major: "Computer Science", class_year: "Sophomore", gender: "Male" },
+  },
+];
+
 function getInitials(first: string, last: string) {
   return ((first?.[0] || "") + (last?.[0] || "")).toUpperCase();
 }
@@ -102,7 +145,7 @@ export default function RoommatesPage() {
   const [saveMsg, setSaveMsg] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
-    if (!user) { setLoading(false); return; }
+    if (!user) { setProfiles([]); setLoading(false); return; }
     setLoading(true);
     try {
       const [profilesRes, actionsRes] = await Promise.all([
@@ -221,10 +264,17 @@ export default function RoommatesPage() {
     setSaving(false);
   };
 
+  const allProfiles = useMemo(() => {
+    const real = profiles;
+    const demoIds = new Set(real.map((p) => p.id));
+    const demos = DEMO_PROFILES.filter((d) => !demoIds.has(d.id));
+    return [...real, ...demos];
+  }, [profiles]);
+
   const displayed = useMemo(() => {
-    if (filterApt === null) return profiles;
-    return profiles.filter((p) => p.preferred_apartment_index === filterApt);
-  }, [profiles, filterApt]);
+    if (filterApt === null) return allProfiles;
+    return allProfiles.filter((p) => p.preferred_apartment_index === filterApt);
+  }, [allProfiles, filterApt]);
 
   const tabs = [
     { id: "discover" as const, label: "Discover", icon: Search },
@@ -284,59 +334,61 @@ export default function RoommatesPage() {
             {/* DISCOVER TAB */}
             {tab === "discover" && (
               <>
-                {!user ? (
-                  <AuthPrompt text="Sign in to find roommates" onSignIn={() => setShowAuth(true)} />
-                ) : !myProfile ? (
-                  <div className="py-16 text-center">
-                    <Users size={40} className="mx-auto mb-4 text-smokey-light" />
-                    <p className="text-lg font-semibold text-ink">Create your profile first</p>
-                    <p className="mt-1 text-sm text-smokey-gray">Set up your preferences so we can find compatible roommates.</p>
-                    <button onClick={() => setTab("profile")} className="mt-4 rounded-xl bg-ut-orange px-6 py-3 text-sm font-semibold text-white hover:bg-ut-orange-light transition-colors cursor-pointer">
+                {!user && (
+                  <div className="mb-6 rounded-xl border border-ut-orange/20 bg-ut-orange/5 px-5 py-4 text-center">
+                    <p className="text-sm text-ink font-medium">Sign in to create your profile, match with roommates, and see contact info.</p>
+                    <button onClick={() => setShowAuth(true)} className="mt-2 rounded-lg bg-ut-orange px-5 py-2 text-sm font-semibold text-white hover:bg-ut-orange-light transition-colors cursor-pointer">
+                      Sign In / Sign Up
+                    </button>
+                  </div>
+                )}
+                {user && !myProfile && (
+                  <div className="mb-6 rounded-xl border border-ut-orange/20 bg-ut-orange/5 px-5 py-4 text-center">
+                    <p className="text-sm text-ink font-medium">Create your profile to match with roommates and get compatibility scores.</p>
+                    <button onClick={() => setTab("profile")} className="mt-2 rounded-lg bg-ut-orange px-5 py-2 text-sm font-semibold text-white hover:bg-ut-orange-light transition-colors cursor-pointer">
                       Create Profile
                     </button>
                   </div>
-                ) : (
-                  <>
-                    {/* Filter */}
-                    <div className="mb-6 flex items-center gap-3">
-                      <div className="relative flex-1 max-w-xs">
-                        <select
-                          value={filterApt ?? ""}
-                          onChange={(e) => setFilterApt(e.target.value ? Number(e.target.value) : null)}
-                          className="w-full appearance-none rounded-xl border border-ink/10 bg-white py-2.5 pl-3 pr-9 text-sm text-ink outline-none focus:border-ut-orange"
-                        >
-                          <option value="">All apartments</option>
-                          {APARTMENTS.map((apt, i) => (
-                            <option key={i} value={i}>{apt.name}</option>
-                          ))}
-                        </select>
-                        <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-smokey-light" />
-                      </div>
-                      <p className="text-sm text-smokey-gray">{displayed.length} profiles</p>
-                    </div>
+                )}
 
-                    {displayed.length === 0 ? (
-                      <div className="py-16 text-center">
-                        <Search size={40} className="mx-auto mb-4 text-smokey-light" />
-                        <p className="text-lg font-semibold text-ink">No more profiles</p>
-                        <p className="mt-1 text-sm text-smokey-gray">Check back later for new roommate profiles.</p>
-                      </div>
-                    ) : (
-                      <div className="space-y-5">
-                        {displayed.map((p, idx) => (
-                          <ProfileCard
-                            key={p.id}
-                            profile={p}
-                            compatibility={computeCompatibility(p, myProfile)}
-                            colorIdx={idx}
-                            onMatch={() => handleAction(p.user_id, "match")}
-                            onPass={() => handleAction(p.user_id, "pass")}
-                            showEmail={false}
-                          />
-                        ))}
-                      </div>
-                    )}
-                  </>
+                {/* Filter */}
+                <div className="mb-6 flex items-center gap-3">
+                  <div className="relative flex-1 max-w-xs">
+                    <select
+                      value={filterApt ?? ""}
+                      onChange={(e) => setFilterApt(e.target.value ? Number(e.target.value) : null)}
+                      className="w-full appearance-none rounded-xl border border-ink/10 bg-white py-2.5 pl-3 pr-9 text-sm text-ink outline-none focus:border-ut-orange"
+                    >
+                      <option value="">All apartments</option>
+                      {APARTMENTS.map((apt, i) => (
+                        <option key={i} value={i}>{apt.name}</option>
+                      ))}
+                    </select>
+                    <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-smokey-light" />
+                  </div>
+                  <p className="text-sm text-smokey-gray">{displayed.length} profiles</p>
+                </div>
+
+                {displayed.length === 0 ? (
+                  <div className="py-16 text-center">
+                    <Search size={40} className="mx-auto mb-4 text-smokey-light" />
+                    <p className="text-lg font-semibold text-ink">No more profiles</p>
+                    <p className="mt-1 text-sm text-smokey-gray">Check back later for new roommate profiles.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-5">
+                    {displayed.map((p, idx) => (
+                      <ProfileCard
+                        key={p.id}
+                        profile={p}
+                        compatibility={myProfile ? computeCompatibility(p, myProfile) : computeCompatibility(p, { sleep_schedule: "Flexible", cleanliness: 3, noise: 3, guests: "Sometimes", budget_min: 600, budget_max: 1200 })}
+                        colorIdx={idx}
+                        onMatch={user && myProfile ? () => handleAction(p.user_id, "match") : undefined}
+                        onPass={user && myProfile ? () => handleAction(p.user_id, "pass") : undefined}
+                        showEmail={false}
+                      />
+                    ))}
+                  </div>
                 )}
               </>
             )}

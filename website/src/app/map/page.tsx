@@ -23,7 +23,7 @@ const APT_COORDS: [number, number][] = [
   [35.9415, -83.9205], // The Heights
   [35.9370, -83.9250], // Knox Ridge
   [35.9340, -83.9310], // The Woodlands
-  [35.9585, -83.9370], // The Mark
+  [35.9577, -83.9296], // The Mark
   [35.9540, -83.9270], // Ever
   [35.9490, -83.9255], // Livano
   [35.9440, -83.9185], // Flagship Kerns

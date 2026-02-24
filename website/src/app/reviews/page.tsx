@@ -13,7 +13,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { APARTMENTS } from "@/data/apartments";
-import { supabase } from "@/lib/supabase";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
 interface ReviewItem {
   id: string;
