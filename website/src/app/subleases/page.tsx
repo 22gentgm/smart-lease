@@ -34,9 +34,9 @@ interface Sublease {
   available_until: string;
   description: string;
   contact_email: string;
+  contact_name?: string;
   active: boolean;
   created_at: string;
-  profiles?: { first_name: string } | null;
 }
 
 type SortOption = "newest" | "price_asc" | "soonest";
@@ -94,7 +94,7 @@ export default function SubleasesPage() {
     setError(null);
     const { data, error: fetchError } = await supabase
       .from("subleases")
-      .select("*, profiles(first_name)")
+      .select("*")
       .eq("active", true)
       .order("created_at", { ascending: false });
 
@@ -112,7 +112,7 @@ export default function SubleasesPage() {
     setLoadingMine(true);
     const { data } = await supabase
       .from("subleases")
-      .select("*, profiles(first_name)")
+      .select("*")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false });
     setMyListings((data as Sublease[]) ?? []);
@@ -395,10 +395,7 @@ export default function SubleasesPage() {
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {filtered.map((s) => {
                   const apt = APARTMENTS[s.apartment_index];
-                  const posterName =
-                    s.profiles && typeof s.profiles === "object" && "first_name" in s.profiles
-                      ? (s.profiles as { first_name: string }).first_name
-                      : "Someone";
+                  const posterName = s.contact_name || "Someone";
                   return (
                     <div
                       key={s.id}
