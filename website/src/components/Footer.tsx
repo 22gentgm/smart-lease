@@ -42,6 +42,7 @@ export default function Footer() {
               <li><Link href="/roommates" className="hover:text-ut-orange transition-colors">Roommates</Link></li>
               <li><Link href="/subleases" className="hover:text-ut-orange transition-colors">Subleases</Link></li>
               <li><Link href="/lease-help" className="hover:text-ut-orange transition-colors">Lease Help</Link></li>
+              <li><Link href="/blog" className="hover:text-ut-orange transition-colors">Blog</Link></li>
             </ul>
           </div>
 
