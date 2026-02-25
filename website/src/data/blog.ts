@@ -13,159 +13,163 @@ export const BLOG_POSTS: BlogPost[] = [
     slug: "best-ut-knoxville-student-apartments-2026",
     title: "Best Student Apartments Near UT Knoxville for 2026",
     description:
-      "A breakdown of the top-rated, most affordable, and closest student apartments to the University of Tennessee campus for the 2026-2027 school year.",
+      "We ranked every student apartment near UT by distance, price, and amenities so you don't have to tour all 21.",
     date: "2026-02-24",
     readTime: "6 min read",
     category: "Guide",
     content: `
-Finding the right apartment near UT Knoxville can be overwhelming — there are over 20 complexes within a few miles of campus, each with different pricing, amenities, and vibes. We broke them down into categories to help you pick.
+Ok so there's like 21+ apartment complexes near UT and they all blur together after a while. We spent way too long comparing them so here's the cheat sheet.
 
-## Closest to Campus (Under 0.3 Miles)
+## Walking Distance (Under 0.3 Miles)
 
-If rolling out of bed and walking to class is your priority, these are your best bets:
+If you want to wake up 15 minutes before class and still make it on time:
 
-**Hub Knoxville** (0.1 mi) — The most popular option among students. Pool, gym, and study rooms included. Starting around $1,174/mo.
+**Hub Knoxville** (0.1 mi) — Basically everyone and their mom lives here. Pool, gym, study rooms. Around $1,174/mo. It's popular for a reason but good luck getting a parking spot.
 
-**The Standard at Knoxville** (0.1 mi) — Literally on campus. Flash sales pop up on select 2x2 and 4x4 units. Starting around $1,335/mo.
+**The Standard** (0.1 mi) — Right on campus. They do flash sales on 2x2 and 4x4 units sometimes so keep an eye out. Around $1,335/mo.
 
-**TENN** (0.1 mi) — Premium vibes with a great pool and gym. Starting around $1,340/mo.
+**TENN** (0.1 mi) — Newer and nicer. Great pool area if that matters to you. Around $1,340/mo.
 
-**The Knox Apartments** (0.2 mi) — Steps from class with the highest ratings among students (4.6 stars). Starting around $850/mo — one of the most affordable close-to-campus options.
+**The Knox** (0.2 mi) — Honestly underrated. Highest student ratings we've seen (4.6 stars) and only $850/mo which is wild for being that close.
 
-## Best Value (Under $900/mo)
+## Cheapest Options (Under $900/mo)
 
-On a budget? These complexes offer the lowest per-person prices:
+For when your parents say "we're not paying $1,300 a month":
 
-**The Woodlands** (2.9 mi) — Quiet, wooded setting. Starting at $720/mo — the cheapest option available. You'll need a car or the shuttle.
+**The Woodlands** (2.9 mi) — $720/mo, cheapest you'll find. It's out there though. You're driving or taking the shuttle every day.
 
-**The Heights** (2.3 mi) — Shuttle to campus included, which offsets the distance. Starting at $759/mo.
+**The Heights** (2.3 mi) — $759/mo and they have a shuttle which helps. Solid if you have a car anyway.
 
-**Tradition at Knoxville** (0.3 mi) — Best for groups. Starting at $799/mo and only 0.3 miles from campus. Use code LIVETRAD for a free application.
+**Tradition at Knoxville** (0.3 mi) — $799/mo and actually close to campus which is rare at this price. Use code LIVETRAD for a free app fee.
 
-**The Knox Apartments** (0.2 mi) — Great value for the location at $850/mo.
+**The Knox** (0.2 mi) — Shows up again here. $850/mo, 0.2 miles. Hard to beat.
 
 ## Best Amenities
 
-**303 Flats** — Pool parties every weekend. Free parking or $1,500 concession for the first 10 leases. 4.8 star rating.
+**303 Flats** — The pool scene is real here. Free parking or $1,500 off for the first 10 leases. 4.8 star rating which is nuts.
 
-**Slate at 901** — Social butterfly's dream. Great game room and community events.
+**Slate at 901** — If you're the type who goes to every event and wants to know your neighbors, this is the spot.
 
-**The Mark** — Luxury feel with a pool, gym, study rooms, and furnished units. $500 gift card with a look-and-lease.
+**The Mark** — Feels more upscale. Pool, gym, study rooms, furnished. $500 gift card if you sign on your tour.
 
-## How to Choose
+## Not Sure Where to Start?
 
-The fastest way to find your match is to [take our 30-second quiz](/quiz). Tell us your budget, preferred bedrooms, distance preference, and must-have amenities — we'll rank all 21 apartments by compatibility.
+Honestly just [take the quiz](/quiz) — it takes like 30 seconds and ranks all 21 places based on what you care about (budget, distance, bedrooms, amenities).
 
-You can also [explore all apartments](/explore) with sorting and filtering, or check out the [interactive map](/map) to see exactly where everything is relative to campus.
+Or if you want to browse yourself, [check out all the apartments](/explore) or look at the [map](/map) to see where everything actually is.
     `,
   },
   {
     slug: "how-to-break-a-lease-in-tennessee",
     title: "How to Break a Lease in Tennessee: A Student's Guide",
     description:
-      "What you need to know about breaking a lease in Tennessee — your rights, fees to expect, and steps to minimize the damage.",
+      "Your roommate bailed, you're transferring, or you just need out. Here's how lease breaking actually works in Tennessee.",
     date: "2026-02-20",
     readTime: "5 min read",
     category: "Lease Tips",
     content: `
-Sometimes things don't go as planned — you need to transfer, study abroad, or your roommate bails. Here's what UT Knoxville students need to know about breaking a lease in Tennessee.
+Look, sometimes it just doesn't work out. Maybe your roommate dipped, you got a transfer, you're studying abroad — whatever. It happens more than you'd think at UT. Here's what you actually need to know.
 
-## Know Your Lease Terms First
+## Read Your Lease First (Seriously)
 
-Before doing anything, read your lease. Look for:
+I know, boring. But there's probably a clause in there that tells you exactly what your options are. Look for these three things:
 
-- **Early termination clause** — Some leases let you break early if you pay a fee (usually 2 months' rent). This is the cleanest option.
-- **Sublease clause** — Many student apartments allow subleasing. If yours does, you can find someone to take over your lease. Check our [sublease board](/subleases) to post yours.
-- **Military/domestic violence clause** — Tennessee law (T.C.A. § 66-28-512) allows early termination for active military orders or domestic violence situations.
+- **Early termination clause** — A lot of student leases have one. You pay a fee (usually 2 months' rent) and you're out clean. Best case scenario.
+- **Sublease clause** — If your lease allows it, you find someone to take over your spot. Post it on our [sublease board](/subleases) and let someone else grab it.
+- **Military/DV clause** — Tennessee law (T.C.A. § 66-28-512) lets you out early for active military orders or domestic violence situations. No fee.
 
-## Tennessee Landlord Obligations
+## Your Landlord Can't Just Screw You Over
 
-Tennessee requires landlords to make "reasonable efforts" to re-rent your unit after you leave (T.C.A. § 66-28-507). This means they can't just let it sit empty and charge you for the full remaining lease. They must:
+This is the part most people don't know. Tennessee law (T.C.A. § 66-28-507) says your landlord has to actually try to re-rent your unit. They can't just leave it empty for 8 months and send you the bill. They have to:
 
-1. List the unit for rent
-2. Show it to prospective tenants
-3. Accept reasonable applicants
+1. Put it back on the market
+2. Show it to people who ask
+3. Accept reasonable tenants
 
-You're only responsible for rent until a new tenant moves in (plus any early termination fees in your lease).
+So you're really only on the hook for rent until someone new moves in, plus whatever early termination fee your lease says.
 
-## Steps to Break Your Lease
+## What to Actually Do
 
-1. **Read your lease carefully** — Use our [Lease Help tool](/lease-help) to scan for key clauses.
-2. **Talk to your landlord first** — Be upfront. Many student housing managers deal with this regularly and may offer options.
-3. **Get everything in writing** — Any agreement to end early should be documented.
-4. **Try to sublease** — If your lease allows it, post on our [sublease board](/subleases). This is often the cheapest route.
-5. **Document the unit** — Take photos/videos of the condition when you leave to protect your security deposit.
+1. **Read your lease** — Or just paste it into our [Lease Help tool](/lease-help) and it'll pull out the important stuff for you.
+2. **Talk to your leasing office** — Don't ghost them. These people deal with this all the time, especially at student apartments. Just be upfront.
+3. **Get it in writing** — Whatever they agree to, get it in an email or signed document. Don't just take someone's word for it.
+4. **Try subleasing first** — Post on our [sublease board](/subleases). It's usually way cheaper than paying the termination fee.
+5. **Take photos when you leave** — Protect your security deposit. Document everything.
 
-## What It Typically Costs
+## What's It Gonna Cost?
 
-- **Early termination fee**: Usually 1-2 months' rent
-- **Lost security deposit**: Possible if not handled properly
-- **Rent until re-rented**: Could be 1-3 months depending on demand
+Real talk:
 
-## The Bottom Line
+- **Early termination fee**: 1-2 months' rent usually
+- **Security deposit**: You might lose it if you don't handle this right
+- **Rent until it's re-rented**: Could be 1-3 months but landlords in college towns usually fill spots fast
 
-Breaking a lease isn't ideal, but it's not the end of the world. Most student apartments in Knoxville have experience with this. The key is communicating early, knowing your rights, and documenting everything.
+## Bottom Line
 
-Need help understanding your specific lease? Paste it into our [Lease Help analyzer](/lease-help) for a free clause-by-clause breakdown.
+It's stressful but it's not the end of the world. The main thing is don't wait. The earlier you deal with it, the less it costs.
+
+Got a lease you need help reading? Throw it in the [Lease Help tool](/lease-help) and it'll break down what you're dealing with.
     `,
   },
   {
     slug: "ut-knoxville-roommate-guide",
     title: "How to Find a Roommate at UT Knoxville (Without the Horror Stories)",
     description:
-      "Tips for finding a compatible roommate at UT Knoxville — what to ask, red flags to watch for, and how to use SmartLease's roommate matching.",
+      "Everyone's got a bad roommate story. Here's how to not become one of them.",
     date: "2026-02-16",
     readTime: "4 min read",
     category: "Roommates",
     content: `
-A bad roommate can ruin your entire year. A great one can become a lifelong friend. Here's how to find the right one.
+We've all heard the stories. The roommate who never did dishes. The one who had people over every single night. The one who "forgot" to pay rent for three months. Yeah let's avoid that.
 
-## What Actually Matters
+## The Stuff That Actually Matters
 
-Forget surface-level stuff. The things that make or break a roommate situation are:
+Nobody cares if you both like the same music. What actually makes or breaks it:
 
-**Sleep schedule** — If you're an early bird and they're a night owl, you'll both be miserable. This is the #1 compatibility factor.
+**Sleep schedule** — This is the big one. If you're out by 10pm and they're up till 3am gaming, you're both gonna hate it. Ask about this first.
 
-**Cleanliness standards** — You don't have to be identical, but you need to be close. A 2/5 and a 5/5 living together will create resentment fast.
+**How clean they actually are** — Everyone says they're clean. They're lying. A 2 out of 5 and a 5 out of 5 living together is a disaster waiting to happen.
 
-**Guest/noise habits** — How often do they have people over? Are weeknights study time or social time? Get specific.
+**People coming over** — Some people want their apartment to be the hangout spot. Some people want it to be quiet. Figure out which one you are and find someone who matches.
 
-**Budget alignment** — If you can't agree on a price range, you can't agree on an apartment.
+**Money** — If you can't agree on a price range you can't agree on an apartment. Get this out of the way early.
 
-## Questions to Ask Before Committing
+## Questions That Actually Tell You Something
 
-Don't just ask "are you clean?" — everyone says yes. Ask specific scenarios:
+"Are you clean?" is a useless question. Everyone says yes. Try these instead:
 
-- "If dishes sat in the sink for 2 days, would that bother you?"
-- "How late do you typically stay up on weeknights?"
-- "How often do you have friends over?"
-- "What's your budget per person per month?"
-- "Do you have or want pets?"
+- "If there were dishes in the sink for 2 days would that bug you?"
+- "What time do you usually go to bed on weeknights?"
+- "How often do you have people over?"
+- "What's your budget per month?"
+- "Pets — do you have any or want any?"
 - "Do you smoke or drink at home?"
+
+You'll learn way more from these than from "tell me about yourself."
 
 ## Red Flags
 
-Watch out for:
-- They can't give straight answers about budget
-- They've had problems with "every" previous roommate
-- They want to skip the lease or go informal
-- They pressure you to decide immediately
-- They avoid talking about cleaning or guest expectations
+Run if:
+- They dodge the budget question
+- Every roommate they've ever had was "the problem"
+- They want to skip the lease or do it informal
+- They're rushing you to commit
+- They won't talk about cleaning or guests
 
-## Use SmartLease Roommate Finder
+## Try the Roommate Finder
 
-Our [Roommate Finder](/roommates) matches you based on the things that actually matter — sleep schedule, cleanliness (1-5 scale), noise level, guest frequency, study habits, budget range, and move-in date.
+We built a [Roommate Finder](/roommates) that matches you on the stuff that actually matters — sleep schedule, cleanliness, noise, guests, study habits, budget, move-in date.
 
-Here's how it works:
+How it works:
 
-1. **Create your profile** — Takes 2 minutes. Be honest about your habits.
-2. **Browse matches** — We show you compatible profiles sorted by compatibility percentage.
-3. **Match or pass** — Like Tinder, but for roommates. If you both match, you'll see each other's email to connect.
-4. **Filter by apartment** — Already know where you want to live? Filter to see only people interested in the same complex.
+1. **Make a profile** — Takes like 2 minutes. Just be honest.
+2. **See your matches** — We sort people by how compatible you actually are.
+3. **Match or pass** — Swipe style. If you both match, you get each other's email.
+4. **Filter by apartment** — Already know where you want to live? Only see people looking at the same place.
 
-The key is honesty. The more accurate your profile, the better your matches will be. Nobody wants to discover their "clean" roommate is actually a 2/5 after signing a 12-month lease.
+The whole thing only works if you're honest about your habits. Nobody wants to find out their "clean" roommate is a disaster 2 weeks into a 12-month lease.
 
-[Find your roommate now →](/roommates)
+[Go find your roommate →](/roommates)
     `,
   },
 ];
