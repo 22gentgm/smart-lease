@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { track } from "@vercel/analytics";
 import {
   Star,
   Search,
@@ -186,6 +187,18 @@ export default function ReviewsPage() {
     )
       return;
 
+    const RATE_KEY = "smartlease_review_timestamps";
+    const RATE_LIMIT = 3;
+    const RATE_WINDOW_MS = 60 * 60 * 1000;
+    const now = Date.now();
+    const timestamps: number[] = JSON.parse(localStorage.getItem(RATE_KEY) || "[]").filter(
+      (t: number) => now - t < RATE_WINDOW_MS,
+    );
+    if (timestamps.length >= RATE_LIMIT) {
+      setSubmitError("You've submitted too many reviews recently. Please try again in an hour.");
+      return;
+    }
+
     setSubmitting(true);
     setSubmitError(null);
 
@@ -199,6 +212,10 @@ export default function ReviewsPage() {
       });
 
       if (insertErr) throw insertErr;
+
+      timestamps.push(now);
+      localStorage.setItem(RATE_KEY, JSON.stringify(timestamps));
+      track("review_submitted", { apartment: APARTMENTS[formApartment]?.name, stars: formStars });
 
       setSubmitted(true);
       setFormApartment(null);

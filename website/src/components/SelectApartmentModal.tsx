@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { X, Check, Loader2 } from "lucide-react";
+import { track } from "@vercel/analytics";
 
 const GOOGLE_SHEET_URL =
   "https://script.google.com/macros/s/AKfycbwQnf8UAbarqAlCdAiZu7M-8Q7VWDVCmveFkY6Fa7KsOtLWBPiQRa8g2J2CApNRwv2A/exec";
@@ -105,8 +106,10 @@ export default function SelectApartmentModal({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
+      track("application_requested", { apartment: apartmentName });
       setStatus("success");
     } catch {
+      track("application_requested", { apartment: apartmentName });
       setStatus("success");
     }
   };

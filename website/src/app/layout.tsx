@@ -3,6 +3,7 @@ import { Playfair_Display, Space_Grotesk } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import Navigation from "@/components/Navigation";
+import Footer from "@/components/Footer";
 import { AuthProvider } from "@/lib/auth-context";
 
 const playfair = Playfair_Display({
@@ -44,6 +45,7 @@ export default function RootLayout({
         <AuthProvider>
           <Navigation />
           {children}
+          <Footer />
         </AuthProvider>
         <Analytics />
         <script

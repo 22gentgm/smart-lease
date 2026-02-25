@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { track } from "@vercel/analytics";
 import {
   ArrowLeft,
   ArrowRight,
@@ -84,6 +85,7 @@ export default function QuizPage() {
     if (amenities.length) params.set("amenities", amenities.join(","));
     if (distance) params.set("distance", distance.toLowerCase());
     if (priorities.length) params.set("priorities", priorities.join(","));
+    track("quiz_completed", { bedrooms: bedrooms ?? "any", budgetMax });
     router.push(`/results?${params.toString()}`);
   };
 
