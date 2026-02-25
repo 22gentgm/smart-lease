@@ -19,11 +19,37 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "SmartLease — UT Knoxville Student Housing",
+  title: {
+    default: "SmartLease — UT Knoxville Student Housing",
+    template: "%s — SmartLease",
+  },
   description:
     "Find your perfect student apartment near UT Knoxville. Compare prices, amenities, and locations across 20+ properties — matched to what matters most to you.",
   manifest: "/manifest.json",
   themeColor: "#FF8200",
+  metadataBase: new URL("https://smartlease-sage.vercel.app"),
+  openGraph: {
+    type: "website",
+    siteName: "SmartLease",
+    title: "SmartLease — UT Knoxville Student Housing",
+    description:
+      "Find your perfect student apartment near UT Knoxville. Compare prices, read reviews, find roommates, and get matched in 30 seconds.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "SmartLease — Find Your Perfect Student Apartment",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "SmartLease — UT Knoxville Student Housing",
+    description:
+      "Find your perfect student apartment near UT Knoxville. Quiz match, reviews, roommate finder & more.",
+    images: ["/og-image.png"],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
