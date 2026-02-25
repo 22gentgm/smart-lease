@@ -27,6 +27,9 @@ export const metadata: Metadata = {
     "Find your perfect student apartment near UT Knoxville. Compare prices, amenities, and locations across 20+ properties — matched to what matters most to you.",
   manifest: "/manifest.json",
   themeColor: "#FF8200",
+  verification: {
+    google: "mqpvtKxSXHoyJeQyCeWovGY46T0UbGaZWHhetxjkcfs",
+  },
   metadataBase: new URL("https://smartlease-sage.vercel.app"),
   openGraph: {
     type: "website",
