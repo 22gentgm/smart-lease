@@ -18,7 +18,6 @@ export default function AuthModal({ onClose, initialMode = "signup" }: Props) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,7 +37,7 @@ export default function AuthModal({ onClose, initialMode = "signup" }: Props) {
       if (err) {
         setError(err);
       } else {
-        setSuccess(true);
+        onClose();
       }
     } else {
       const { error: err } = await signIn(email, password);
@@ -62,29 +61,7 @@ export default function AuthModal({ onClose, initialMode = "signup" }: Props) {
           <X size={20} />
         </button>
 
-        {success ? (
-          <div className="py-8 text-center">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-success/10">
-              <Mail size={28} className="text-success" />
-            </div>
-            <h2
-              className="text-xl font-bold text-ink"
-              style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
-            >
-              Check your email
-            </h2>
-            <p className="mt-3 text-sm text-smokey-gray leading-relaxed max-w-xs mx-auto">
-              We sent a confirmation link to <strong>{email}</strong>. Click it to activate your account.
-            </p>
-            <button
-              onClick={onClose}
-              className="mt-6 rounded-xl bg-ut-orange px-6 py-3 text-sm font-semibold text-white hover:bg-ut-orange-light transition-colors cursor-pointer"
-            >
-              Got it
-            </button>
-          </div>
-        ) : (
-          <>
+        <>
             <h2
               className="text-xl font-bold text-ink text-center mb-6"
               style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
@@ -173,7 +150,6 @@ export default function AuthModal({ onClose, initialMode = "signup" }: Props) {
               </button>
             </p>
           </>
-        )}
       </div>
     </div>
   );
