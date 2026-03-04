@@ -172,12 +172,13 @@ export default function MapPage() {
 
         marker.bindPopup(
           `<div style="font-family:'Space Grotesk',sans-serif;min-width:180px;">` +
-            `<p style="font-size:15px;font-weight:600;margin:0 0 4px;">${apt.name}</p>` +
+            `<a href="/apartments/${i}" style="font-size:15px;font-weight:600;margin:0 0 4px;display:block;color:#FF8200;text-decoration:none;">${apt.name}</a>` +
             `<p style="font-size:14px;color:${allSoldOut ? "#999" : "#FF8200"};font-weight:500;margin:0 0 4px;">${allSoldOut ? "Sold Out" : `$${lowestPrice.toLocaleString()}/mo`}</p>` +
             `<p style="font-size:12px;color:#666;margin:0 0 4px;">${apt.distanceMiles} mi · ${apt.amenities.slice(0, 3).join(", ")}</p>` +
             (apt.special
               ? `<p style="font-size:11px;color:#00b464;margin:0 0 6px;font-weight:500;">✦ ${apt.special}</p>`
               : "") +
+            `<a href="/apartments/${i}" style="display:inline-block;margin-top:6px;padding:6px 14px;background:#FF8200;color:white;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;">View Details →</a>` +
             `</div>`,
           { maxWidth: 250 }
         );

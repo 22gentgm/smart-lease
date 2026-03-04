@@ -27,17 +27,22 @@ interface ReviewItem {
   isSeed?: boolean;
 }
 
+const HIDDEN_SEED_INDICES = new Set([1, 5, 10, 15, 20]);
+
 function buildSeedReviews(): ReviewItem[] {
-  return APARTMENTS.map((apt, idx) => ({
-    id: `seed-${idx}`,
-    apartmentIndex: idx,
-    stars: apt.review.stars,
-    text: apt.review.quote,
-    author: apt.review.author,
-    classYear: apt.review.classYear,
-    createdAt: new Date(Date.now() - idx * 86400000).toISOString(),
-    isSeed: true,
-  }));
+  return APARTMENTS
+    .map((apt, idx) => ({ apt, idx }))
+    .filter(({ idx }) => !HIDDEN_SEED_INDICES.has(idx))
+    .map(({ apt, idx }) => ({
+      id: `seed-${idx}`,
+      apartmentIndex: idx,
+      stars: apt.review.stars,
+      text: apt.review.quote,
+      author: apt.review.author,
+      classYear: apt.review.classYear,
+      createdAt: new Date(Date.now() - idx * 86400000).toISOString(),
+      isSeed: true,
+    }));
 }
 
 function StarRating({
