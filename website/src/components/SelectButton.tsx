@@ -1,8 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { FileText } from "lucide-react";
+import { FileText, CalendarDays } from "lucide-react";
 import SelectApartmentModal from "./SelectApartmentModal";
+
+interface FloorPlan {
+  beds: string;
+  baths: string;
+  price: number;
+  soldOut?: boolean;
+}
 
 interface Props {
   apartmentName: string;
@@ -11,6 +18,9 @@ interface Props {
   bedrooms?: string;
   distance?: number;
   variant?: "primary" | "outline";
+  floorPlans?: FloorPlan[];
+  requestType?: "application" | "tour";
+  label?: string;
 }
 
 export default function SelectButton({
@@ -20,8 +30,14 @@ export default function SelectButton({
   bedrooms,
   distance,
   variant = "primary",
+  floorPlans,
+  requestType = "application",
+  label,
 }: Props) {
   const [open, setOpen] = useState(false);
+
+  const defaultLabel = requestType === "tour" ? "Request a Tour" : "Request Application";
+  const Icon = requestType === "tour" ? CalendarDays : FileText;
 
   return (
     <>
@@ -33,8 +49,8 @@ export default function SelectButton({
             : "border border-ut-orange/30 px-4 py-2.5 text-ut-orange hover:bg-ut-orange/10"
         }`}
       >
-        <FileText size={16} />
-        {variant === "primary" ? "Request Application" : "Request Application"}
+        <Icon size={16} />
+        {label || defaultLabel}
       </button>
 
       {open && (
@@ -44,6 +60,8 @@ export default function SelectButton({
           matchScore={matchScore}
           bedrooms={bedrooms}
           distance={distance}
+          floorPlans={floorPlans}
+          requestType={requestType}
           onClose={() => setOpen(false)}
         />
       )}

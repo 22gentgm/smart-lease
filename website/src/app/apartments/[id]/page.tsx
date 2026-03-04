@@ -329,6 +329,18 @@ export default async function ApartmentDetailPage({
                   apartmentName={apartment.name}
                   price={Math.min(...apartment.bedTypes.filter((b) => !b.soldOut).map((b) => b.price))}
                   distance={apartment.distanceMiles}
+                  floorPlans={apartment.bedTypes}
+                />
+              </div>
+
+              <div className="mt-3">
+                <SelectButton
+                  apartmentName={apartment.name}
+                  price={Math.min(...apartment.bedTypes.filter((b) => !b.soldOut).map((b) => b.price))}
+                  distance={apartment.distanceMiles}
+                  floorPlans={apartment.bedTypes}
+                  requestType="tour"
+                  variant="outline"
                 />
               </div>
 

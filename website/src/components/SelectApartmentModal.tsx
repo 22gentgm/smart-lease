@@ -27,12 +27,21 @@ function saveUser(user: SavedUser) {
   localStorage.setItem("smartlease_user", JSON.stringify(user));
 }
 
+interface FloorPlan {
+  beds: string;
+  baths: string;
+  price: number;
+  soldOut?: boolean;
+}
+
 interface Props {
   apartmentName: string;
   price: number;
   matchScore?: number;
   bedrooms?: string;
   distance?: number;
+  floorPlans?: FloorPlan[];
+  requestType?: "application" | "tour";
   onClose: () => void;
 }
 
@@ -42,12 +51,15 @@ export default function SelectApartmentModal({
   matchScore,
   bedrooms,
   distance,
+  floorPlans,
+  requestType = "application",
   onClose,
 }: Props) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [selectedPlan, setSelectedPlan] = useState("");
   const [status, setStatus] = useState<"form" | "sending" | "success" | "error">("form");
 
   useEffect(() => {
@@ -91,12 +103,13 @@ export default function SelectApartmentModal({
       lastName: user.lastName,
       email: user.email,
       phone: user.phone,
-      bedrooms: bedrooms || "",
+      bedrooms: selectedPlan || bedrooms || "",
       budget: "",
       apartment: apartmentName,
       price: "$" + price.toLocaleString(),
       distance: distance ? distance + " mi" : "",
       matchScore: matchScore ? matchScore + "%" : "",
+      requestType,
     };
 
     try {
@@ -106,10 +119,10 @@ export default function SelectApartmentModal({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      track("application_requested", { apartment: apartmentName });
+      track(requestType === "tour" ? "tour_requested" : "application_requested", { apartment: apartmentName });
       setStatus("success");
     } catch {
-      track("application_requested", { apartment: apartmentName });
+      track(requestType === "tour" ? "tour_requested" : "application_requested", { apartment: apartmentName });
       setStatus("success");
     }
   };
@@ -142,8 +155,10 @@ export default function SelectApartmentModal({
               ${price.toLocaleString()}/mo
             </p>
             <p className="mt-4 text-sm text-smokey-gray leading-relaxed max-w-xs mx-auto">
-              Your application request has been received! We&apos;ll follow up within{" "}
-              <strong>24–48 hours</strong> with next steps.
+              {requestType === "tour"
+                ? <>Your tour request has been received! We&apos;ll reach out within <strong>24–48 hours</strong> to schedule a time.</>
+                : <>Your application request has been received! We&apos;ll follow up within{" "}<strong>24–48 hours</strong> with next steps.</>
+              }
             </p>
             <button
               onClick={onClose}
@@ -159,7 +174,7 @@ export default function SelectApartmentModal({
                 className="text-2xl font-bold text-ink"
                 style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
               >
-                Request Application
+                {requestType === "tour" ? "Request a Tour" : "Request Application"}
               </h2>
               <p className="mt-1 text-sm text-ut-orange font-semibold">{apartmentName}</p>
               <p className="mt-0.5 text-sm text-smokey-gray">
@@ -168,6 +183,26 @@ export default function SelectApartmentModal({
             </div>
 
             <div className="space-y-3">
+              {floorPlans && floorPlans.length > 0 && (
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-smokey-gray">
+                    Floor Plan {requestType === "tour" ? "(optional)" : "*"}
+                  </label>
+                  <select
+                    value={selectedPlan}
+                    onChange={(e) => setSelectedPlan(e.target.value)}
+                    className="w-full rounded-xl border border-ink/10 bg-cream px-4 py-3 text-sm text-ink outline-none focus:border-ut-orange focus:ring-1 focus:ring-ut-orange transition-colors appearance-none"
+                  >
+                    <option value="">Select a floor plan...</option>
+                    {floorPlans.filter((p) => !p.soldOut).map((plan, i) => (
+                      <option key={i} value={`${plan.beds} / ${plan.baths} Bath`}>
+                        {plan.beds} / {plan.baths} Bath — ${plan.price.toLocaleString()}/mo
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="mb-1 block text-xs font-medium text-smokey-gray">
@@ -232,6 +267,8 @@ export default function SelectApartmentModal({
                   <Loader2 size={16} className="animate-spin" />
                   Submitting...
                 </>
+              ) : requestType === "tour" ? (
+                "Request Tour"
               ) : (
                 "Submit Request"
               )}
